@@ -1,0 +1,5 @@
+# parses a plan from a file
+string plan
+---
+rosplan_dispatch_msgs/CompletePlan parsed_plan
+bool success

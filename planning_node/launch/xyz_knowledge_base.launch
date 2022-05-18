@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="domain_path" default="$(find planning_node)/files/yaml/domain.yaml" />
+    <arg name="domain_name" default="/planning" />
+    <arg name="kb_rate" default="100" />
+
+    <!-- rosplan knowledge base -->
+    <node name="xyz_knowledge_base" pkg="planning_node" type="xyz_knowledge_base" respawn="false" output="screen">
+        <param name="domain_path" value="$(arg domain_path)" />
+        <param name="domain_name" value="$(arg domain_name)" />
+        <param name="kb_rate" value="$(arg kb_rate)" />
+    </node>
+
+</launch>

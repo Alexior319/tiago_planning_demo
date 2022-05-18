@@ -1,0 +1,208 @@
+planning:
+    initial:
+        - robot_at(tiago, wp0)
+        - -robot_at(tiago, wp1)
+
+        - connected(wp0, wp1)
+        # - connected(wp0, wp3)
+        - connected(wp1, wp0)
+        # - connected(wp1, wp2)
+        # - connected(wp1, wp3)
+        # - connected(wp2, wp1)
+        # - connected(wp2, wp3)
+        # - connected(wp3, wp0)
+        # - connected(wp3, wp1)
+        # - connected(wp3, wp2)
+
+        - at(table0, wp0)
+        - at(table1, wp1)
+        - -on_table(glass, table1)
+        - emptyhand(tiago)
+        - visited(wp0)
+
+    goal:
+        # - in_hand(tiago, glass)
+        - on_table(glass, table1)
+        # - robot_at(tiago, wp1)
+        
+
+        # - robot_at(tiago, wp0)
+        # - -robot_at(tiago, wp1)
+        # - -robot_at(tiago, wp2)
+        # - -robot_at(tiago, wp3)
+        # - on_table(glass, table1)
+        # - -on_table(glass, table0)
+        # - visited(wp1)
+        # - visited(wp2)
+        # - visited(wp3)
+        # - visited(wp0)
+        # - visited(wp4)
+        # - visited(wp5)
+
+    predicates:
+        -   name: robot_at
+            parameters:
+                -   name: r
+                    type: robot
+                -   name: wp
+                    type: waypoint
+        -   name: connected
+            parameters:
+                -   name: wp1
+                    type: waypoint
+                -   name: wp2
+                    type: waypoint
+        -   name: at
+            parameters:
+                -   name: t
+                    type: table
+                -   name: wp
+                    type: waypoint
+        -   name: on_table
+            parameters:
+                -   name: obj
+                    type: object
+                -   name: t
+                    type: table
+        -   name: emptyhand
+            parameters:
+                -   name: r
+                    type: robot
+        -   name: in_hand
+            parameters:
+                -   name: r
+                    type: robot
+                -   name: obj
+                    type: object
+        -   name: visited
+            parameters:
+                -   name: wp
+                    type: waypoint
+
+    types:
+        - robot
+        - waypoint
+        - object
+        - table
+
+    objects:
+        robot:
+            - tiago
+        waypoint:
+            - wp1
+            - wp2
+        object:
+            - obj
+        table:
+            - table0
+            - table1
+
+    actions:
+        -   name: goto_waypoint
+            parameters:
+                -   type: robot
+                    name: r
+                -   type: waypoint
+                    name: from
+                -   type: waypoint
+                    name: to
+            conditions:
+                - robot_at(r, from)
+                - connected(from, to)
+            effects:
+                - -robot_at(r, from)
+                - robot_at(r, to)
+                - visited(from)
+                - visited(to)
+                # - connected(from, to)
+
+        -   name: pick
+            parameters:
+                -   type: robot
+                    name: r
+                -   type: object
+                    name: obj
+                -   type: table
+                    name: t
+                -   type: waypoint
+                    name: wp
+            conditions:
+                - robot_at(r, wp)
+                - at(t, wp)
+
+                - on_table(obj, t)
+                - emptyhand(r)
+            effects:
+                # - robot_at(r, wp)
+                # - at(t, wp)
+
+                - in_hand(r, obj)
+                - -emptyhand(r)
+                - -on_table(obj, t)
+                # - robot_at(r, wp)
+                # - at(t, wp)
+
+        -   name: place
+            parameters:
+                -   type: robot
+                    name: r
+                -   type: object
+                    name: obj
+                -   type: table
+                    name: t
+                -   type: waypoint
+                    name: wp
+            conditions:
+                - robot_at(r, wp)
+                - at(t, wp)
+                - in_hand(r, obj)
+                - -emptyhand(r)
+            effects:
+                # - robot_at(r, wp)
+                # - at(t, wp)
+
+                - -in_hand(r, obj)
+                - emptyhand(r)
+                - on_table(obj, t)
+
+        -   name: watch_table
+            parameters:
+                -   type: robot
+                    name: r
+                -   type: table
+                    name: t
+                -   type: waypoint
+                    name: wp
+                -   type: object
+                    name: obj
+            conditions:
+                - robot_at(r, wp)
+                - at(t, wp)
+
+                # 以not 开头的前提条件表示该谓词不能出现
+                - not on_table(obj, t)
+                - not -on_table(obj, t)
+            effects:
+                - on_table(obj, t)
+                - -on_table(obj, t)
+
+#        -   name: watch_wall
+#            parameters:
+#                -   type: robot
+#                    name: r
+#                -   type: table
+#                    name: t
+#                -   type: waypoint
+#                    name: wp
+#                -   type: object
+#                    name: obj
+#            conditions:
+#                - robot_at(r, wp)
+#                - at(t, wp)
+#
+#                # 以not 开头的前提条件表示该谓词不能出现
+#                - not on_table(obj, t)
+#                - not -on_table(obj, t)
+#            effects:
+#                  - on_table(obj, t)
+#                  - -on_table(obj, t)
