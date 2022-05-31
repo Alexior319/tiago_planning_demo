@@ -4,15 +4,15 @@ planning:
         - -robot_at(tiago, wp1)
 
         - connected(wp0, wp1)
-        # - connected(wp0, wp3)
+        - connected(wp0, wp3)
         - connected(wp1, wp0)
-        # - connected(wp1, wp2)
-        # - connected(wp1, wp3)
-        # - connected(wp2, wp1)
-        # - connected(wp2, wp3)
-        # - connected(wp3, wp0)
-        # - connected(wp3, wp1)
-        # - connected(wp3, wp2)
+        - connected(wp1, wp2)
+        - connected(wp1, wp3)
+        - connected(wp2, wp1)
+        - connected(wp2, wp3)
+        - connected(wp3, wp0)
+        - connected(wp3, wp1)
+        - connected(wp3, wp2)
 
         - at(table0, wp0)
         - at(table1, wp1)
@@ -22,7 +22,7 @@ planning:
 
     goal:
         # - in_hand(tiago, glass)
-        - on_table(glass, table1)
+#        - on_table(glass, table1)
         # - robot_at(tiago, wp1)
         
 
@@ -32,9 +32,9 @@ planning:
         # - -robot_at(tiago, wp3)
         # - on_table(glass, table1)
         # - -on_table(glass, table0)
-        # - visited(wp1)
-        # - visited(wp2)
-        # - visited(wp3)
+        - visited(wp1)
+        - visited(wp2)
+        - visited(wp3)
         # - visited(wp0)
         # - visited(wp4)
         # - visited(wp5)

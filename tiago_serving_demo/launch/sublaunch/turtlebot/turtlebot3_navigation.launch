@@ -1,0 +1,85 @@
+<launch>
+    <!-- Arguments -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="map_file"/>
+    <arg name="open_rviz" default="true"/>
+    <arg name="move_forward_only" default="false"/>
+    <arg name="remote" default="false"/>
+    <arg name="world_name"/>
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="slam" default="false" />
+
+
+    <arg name="x_pos" default="0.0"/>
+    <arg name="y_pos" default="0.0"/>
+
+    <!-- SLAM parameters -->
+    <arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+
+
+    <!-- Turtlebot3 -->
+    <!--实体机器人turtlebot-->
+    <group if="$(arg remote)">
+        <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+            <arg name="model" value="$(arg model)"/>
+        </include>
+
+        <include file="$(find tiago_serving_demo)launch/sublaunch/turtlebot/laser_filter.launch" />
+    </group>
+    <!--仿真机器人-->
+    <group unless="$(arg remote)">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(arg world_name)"/>
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="$(arg gazebo_gui)"/>
+            <arg name="headless" value="false"/>
+            <arg name="debug" value="false"/>
+        </include>
+
+
+        <!-- upload turtlebot3 URDF model to param server -->
+        <param name="robot_description"
+               command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro"/>
+
+        <!-- spawn turtlebot3 robot -->
+        <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"
+              args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z 0.0 -param robot_description" />
+
+        <!-- publish robot state -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+        </node>
+    </group>
+
+    <!-- Map server -->
+    <group if="$(arg slam)">
+        <!-- SLAM: Gmapping, Cartographer, Hector, Karto, Frontier_exploration, RTAB-Map -->
+        <include file="$(find turtlebot3_slam)/launch/turtlebot3_$(arg slam_methods).launch">
+            <arg name="model" value="$(arg model)"/>
+        </include>
+
+    </group>
+    <group unless="$(arg slam)">
+        <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+        <!-- AMCL -->
+        <include file="$(find tiago_serving_demo)/launch/sublaunch/turtlebot/amcl.launch"/>
+
+        <!-- move_base -->
+        <include file="$(find tiago_serving_demo)/launch/sublaunch/turtlebot/move_base.launch">
+            <arg name="model" value="$(arg model)"/>
+            <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+        </include>
+    </group>
+
+
+
+    <!-- rviz -->
+    <group if="$(arg open_rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" required="true"
+              args="-d $(find tiago_serving_demo)/config/wafflepi_navigation.rviz"/>
+    </group>
+
+
+    <!--    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot_demo)/config/turtlebot3.rviz" />-->
+</launch>

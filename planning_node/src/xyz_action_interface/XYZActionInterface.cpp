@@ -16,6 +16,7 @@ namespace planning_node {
             action_cancelled = true;
             return;
         }
+        ROS_INFO("(%s): received action (%s).", ros::this_node::getName().c_str(), msg->name.c_str());
         if (msg->name != params.name) return;
         ROS_INFO("KCL: (%s) action received", params.name.c_str());
         action_cancelled = false;
@@ -24,9 +25,9 @@ namespace planning_node {
         std::vector<bool> found(params.typed_parameters.size(), false);
         std::map<std::string, std::string> boundParameters;
         for (size_t j = 0; j < params.typed_parameters.size(); j++) {
-            for (size_t i = 0; i < msg->parameters.size(); i++) {
-                if (params.typed_parameters[j].key == msg->parameters[i].key) {
-                    boundParameters[msg->parameters[i].key] = msg->parameters[i].value;
+            for (const auto& [paraName, paraValue]: msg->parameters) {
+                if (params.typed_parameters[j].key == paraName) {
+                    boundParameters[paraName] = paraValue;
                     found[j] = true;
                     break;
                 }
@@ -47,52 +48,94 @@ namespace planning_node {
         // call concrete implementation
         action_success = concreteCallback(msg);
         ros::spinOnce();
-        if(action_cancelled) {
+        if (action_cancelled) {
             action_success = false;
             ROS_INFO("(%s) an old action that was cancelled is stopping now", params.name.c_str());
             return;
         }
 
-        if(action_success) {
+        if (action_success) {
 
             ROS_INFO("KCL: (%s) action completed successfully", params.name.c_str());
 
             // update knowledge base
             rosplan_knowledge_msgs::KnowledgeUpdateServiceArray updatePredSrv;
 
-            // simple END del effects
-            for(int i=0; i<op.at_end_del_effects.size(); i++) {
-                rosplan_knowledge_msgs::KnowledgeItem item;
-                item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
-                item.attribute_name = op.at_end_del_effects[i].name;
-                item.values.clear();
-                diagnostic_msgs::KeyValue pair;
-                for(size_t j=0; j<op.at_end_del_effects[i].typed_parameters.size(); j++) {
-                    pair.key = predicates[op.at_end_del_effects[i].name].typed_parameters[j].key;
-                    pair.value = boundParameters[op.at_end_del_effects[i].typed_parameters[j].key];
-                    item.values.push_back(pair);
+            if (isSensingAction()) {
+                for (size_t i = 0; i < op.at_end_add_effects.size(); ++i) {
+                    if (at_end_add_effects_results[i]) {
+                        rosplan_knowledge_msgs::KnowledgeItem item;
+                        item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+                        item.attribute_name = op.at_end_add_effects[i].name;
+                        item.values.clear();
+                        diagnostic_msgs::KeyValue pair;
+                        for (size_t j = 0; j < op.at_end_add_effects[i].typed_parameters.size(); j++) {
+                            pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
+                            pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
+                            item.values.push_back(pair);
+                        }
+                        updatePredSrv.request.knowledge.push_back(item);
+                        updatePredSrv.request.update_type.push_back(
+                                rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+                    }
                 }
-                updatePredSrv.request.knowledge.push_back(item);
-                updatePredSrv.request.update_type.push_back(rosplan_knowledge_msgs::KnowledgeUpdateService::Request::REMOVE_KNOWLEDGE);
+                for (size_t i = 0; i < op.at_end_del_effects.size(); ++i) {
+                    if (at_end_del_effects_results[i]) {
+                        rosplan_knowledge_msgs::KnowledgeItem item;
+                        item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+                        item.attribute_name = op.at_end_add_effects[i].name;
+                        item.is_negative = true;
+                        item.values.clear();
+                        diagnostic_msgs::KeyValue pair;
+                        for (size_t j = 0; j < op.at_end_add_effects[i].typed_parameters.size(); j++) {
+                            pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
+                            pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
+                            item.values.push_back(pair);
+                        }
+                        updatePredSrv.request.knowledge.push_back(item);
+                        updatePredSrv.request.update_type.push_back(
+                                rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+                    }
+                }
+
+            } else {
+                // simple END del effects
+                for (auto& at_end_del_effect: op.at_end_del_effects) {
+                    rosplan_knowledge_msgs::KnowledgeItem item;
+                    item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+                    item.attribute_name = at_end_del_effect.name;
+                    item.is_negative = true;
+                    item.values.clear();
+                    diagnostic_msgs::KeyValue pair;
+                    for (size_t j = 0; j < at_end_del_effect.typed_parameters.size(); j++) {
+                        pair.key = predicates[at_end_del_effect.name].typed_parameters[j].key;
+                        pair.value = boundParameters[at_end_del_effect.typed_parameters[j].key];
+                        item.values.push_back(pair);
+                    }
+                    updatePredSrv.request.knowledge.push_back(item);
+                    updatePredSrv.request.update_type.push_back(
+                            rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+                }
+
+                // simple END add effects
+                for (auto& at_end_add_effect: op.at_end_add_effects) {
+                    rosplan_knowledge_msgs::KnowledgeItem item;
+                    item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+                    item.attribute_name = at_end_add_effect.name;
+                    item.values.clear();
+                    diagnostic_msgs::KeyValue pair;
+                    for (size_t j = 0; j < at_end_add_effect.typed_parameters.size(); j++) {
+                        pair.key = predicates[at_end_add_effect.name].typed_parameters[j].key;
+                        pair.value = boundParameters[at_end_add_effect.typed_parameters[j].key];
+                        item.values.push_back(pair);
+                    }
+                    updatePredSrv.request.knowledge.push_back(item);
+                    updatePredSrv.request.update_type.push_back(
+                            rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+                }
             }
 
-            // simple END add effects
-            for(int i=0; i<op.at_end_add_effects.size(); i++) {
-                rosplan_knowledge_msgs::KnowledgeItem item;
-                item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
-                item.attribute_name = op.at_end_add_effects[i].name;
-                item.values.clear();
-                diagnostic_msgs::KeyValue pair;
-                for(size_t j=0; j<op.at_end_add_effects[i].typed_parameters.size(); j++) {
-                    pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
-                    pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
-                    item.values.push_back(pair);
-                }
-                updatePredSrv.request.knowledge.push_back(item);
-                updatePredSrv.request.update_type.push_back(rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
-            }
-
-            if(!updatePredSrv.request.knowledge.empty() && !update_knowledge_client.call(updatePredSrv))
+            if (!updatePredSrv.request.knowledge.empty() && !update_knowledge_client.call(updatePredSrv))
                 ROS_INFO("XYZ: (%s) failed to update PDDL model in knowledge base", params.name.c_str());
 
             // publish feedback (achieved)
@@ -134,47 +177,44 @@ namespace planning_node {
         std::vector<std::string> predicateNames;
 
         // effects
-        auto pit = op.at_start_add_effects.begin();
-        for (; pit != op.at_start_add_effects.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        for (const auto& at_start_add_effect: op.at_start_add_effects)
+            predicateNames.push_back(at_start_add_effect.name);
 
-        pit = op.at_start_del_effects.begin();
-        for (; pit != op.at_start_del_effects.end(); ++pit)
-            predicateNames.push_back(pit->name);
 
-        pit = op.at_end_add_effects.begin();
-        for (; pit != op.at_end_add_effects.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        for (const auto& at_start_del_effect: op.at_start_del_effects)
+            predicateNames.push_back(at_start_del_effect.name);
 
-        pit = op.at_end_del_effects.begin();
-        for (; pit != op.at_end_del_effects.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        at_end_add_effects_results.resize(op.at_end_add_effects.size());
+        for (const auto& at_end_add_effect: op.at_end_add_effects)
+            predicateNames.push_back(at_end_add_effect.name);
+
+        at_end_del_effects_results.resize(op.at_end_del_effects.size());
+        for (const auto& at_end_del_effect: op.at_end_del_effects)
+            predicateNames.push_back(at_end_del_effect.name);
 
         // simple conditions
-        pit = op.at_start_simple_condition.begin();
-        for (; pit != op.at_start_simple_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        for (const auto& pit: op.at_start_simple_condition)
+            predicateNames.push_back(pit.name);
 
-        pit = op.over_all_simple_condition.begin();
-        for (; pit != op.over_all_simple_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        for (const auto& pit: op.over_all_simple_condition)
+            predicateNames.push_back(pit.name);
 
-        pit = op.at_end_simple_condition.begin();
-        for (; pit != op.at_end_simple_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
+
+        for (const auto& pit: op.at_end_simple_condition)
+            predicateNames.push_back(pit.name);
 
         // negative conditions
-        pit = op.at_start_neg_condition.begin();
-        for (; pit != op.at_start_neg_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
 
-        pit = op.over_all_neg_condition.begin();
-        for (; pit != op.over_all_neg_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
+        for (const auto& pit: op.at_start_neg_condition)
+            predicateNames.push_back(pit.name);
 
-        pit = op.at_end_neg_condition.begin();
-        for (; pit != op.at_end_neg_condition.end(); ++pit)
-            predicateNames.push_back(pit->name);
+
+        for (const auto& pit: op.over_all_neg_condition)
+            predicateNames.push_back(pit.name);
+
+
+        for (const auto& pit: op.at_end_neg_condition)
+            predicateNames.push_back(pit.name);
 
         // fetch and store predicate details
         ss.str("");
@@ -182,17 +222,19 @@ namespace planning_node {
         ros::service::waitForService(ss.str(), ros::Duration(20));
         ros::ServiceClient predClient = nh.serviceClient<rosplan_knowledge_msgs::GetDomainPredicateDetailsService>(
                 ss.str());
-        auto nit = predicateNames.begin();
-        for (; nit != predicateNames.end(); nit++) {
-            if (predicates.find(*nit) != predicates.end()) continue;
-            if (*nit == "=" || *nit == ">" || *nit == "<" || *nit == ">=" || *nit == "<=") continue;
+
+        for (auto& predicateName: predicateNames) {
+            if (predicates.find(predicateName) != predicates.end()) continue;
+            if (predicateName == "=" || predicateName == ">" || predicateName == "<" || predicateName == ">=" ||
+                predicateName == "<=")
+                continue;
             rosplan_knowledge_msgs::GetDomainPredicateDetailsService predSrv;
-            predSrv.request.name = *nit;
+            predSrv.request.name = predicateName;
             if (predClient.call(predSrv)) {
                 if (predSrv.response.is_sensed) {
                     ROS_ERROR("Sensed predicate is not supported.");
                 } else {
-                    predicates.insert(std::pair<std::string, rosplan_knowledge_msgs::DomainFormula>(*nit,
+                    predicates.insert(std::pair<std::string, rosplan_knowledge_msgs::DomainFormula>(predicateName,
                                                                                                     predSrv.response.predicate));
                 }
             } else {
@@ -215,7 +257,9 @@ namespace planning_node {
         // listen for action dispatch
         std::string adt = "default_dispatch_topic";
         nh.getParam("action_dispatch_topic", adt);
-        nh.subscribe(adt, 1000, &XYZActionInterface::dispatchCallback, this);
+        action_dispatch_sub = nh.subscribe(adt, 1000, &XYZActionInterface::dispatchCallback, this);
+
+        ROS_INFO("XYZ: (%s) ready to receive.", ros::this_node::getName().c_str());
 
         ros::spin();
     }

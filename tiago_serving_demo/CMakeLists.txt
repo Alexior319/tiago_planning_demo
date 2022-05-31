@@ -8,9 +8,11 @@ project(tiago_serving_demo)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    roscpp
     planning_node
-
-        )
+    move_base_msgs
+    actionlib
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -104,8 +106,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
 #  LIBRARIES tiago_serving_demo
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+#   CATKIN_DEPENDS roscpp
+#   DEPENDS roscpp std_msgs
 )
 
 ###########
@@ -132,8 +134,11 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(action_gotowaypoint src/ActionInterface/GotoWaypoint.cpp)
-target_link_libraries(action_gotowaypoint ${catkin_LIBRARIES})
+add_executable(action_goto_waypoint src/ActionInterface/GotoWaypoint.cpp)
+target_link_libraries(action_goto_waypoint ${catkin_LIBRARIES})
+
+add_executable(action_dummy src/ActionInterface/Dummy.cpp)
+target_link_libraries(action_dummy ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

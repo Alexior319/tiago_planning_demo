@@ -1,0 +1,9 @@
+nav_wps:
+    # waypoints reference frame
+    waypoint_frameid: map
+
+    # waypoint 2D coordinates: x, y, theta
+    wp0: [0, 0, -1.57]
+    wp1: [2.8, -0.5, -1.57]
+    wp2: [4.0, -2.0, -1.57]
+    wp3: [-2.0, -0.2, 1.57]

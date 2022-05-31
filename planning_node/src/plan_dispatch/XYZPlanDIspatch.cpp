@@ -81,6 +81,8 @@ namespace planning_node {
         }
 
         ros_info("({}) Dispatch complete.", ros::this_node::getName());
+        res.goal_achieved = true;
+        res.success = true;
         return true;
     }
 

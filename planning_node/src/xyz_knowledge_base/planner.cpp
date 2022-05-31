@@ -178,7 +178,7 @@ namespace planning_node {
             a.duration = 0.0f;
             for (int i = 0; i < got_plan[action_id]->paras.size(); ++i) {
                 diagnostic_msgs::KeyValue kv;
-                kv.key = got_plan[action_id]->meta->types[i];
+                kv.key = got_plan[action_id]->meta->names[i];
                 kv.value = got_plan[action_id]->paras[i];
                 a.parameters.emplace_back(kv);
             }

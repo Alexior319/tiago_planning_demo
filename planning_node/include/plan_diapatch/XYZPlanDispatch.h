@@ -27,7 +27,7 @@ namespace planning_node {
         std::string action_dispatch_topic;
         std::string action_feedback_topic;
 
-        int current_action;
+        int current_action{0};
 
         std::map<int,bool> action_received;
         std::map<int,bool> action_completed;

@@ -43,8 +43,8 @@ namespace KCL_rosplan {
             item.is_negative = g.neg;
             for (int i = 0; i < g.parameters.size(); ++i) {
                 diagnostic_msgs::KeyValue kv;
-                kv.value = g.meta->types[i];
-                kv.key = g.parameters[i];
+                kv.key = g.meta->names[i];
+                kv.value = g.parameters[i];
                 item.values.push_back(kv);
             }
             res.attributes.emplace_back(item);
@@ -183,10 +183,10 @@ namespace KCL_rosplan {
     void XYZKnowledgeBase::addInitialState() {
     }
 
-    void XYZKnowledgeBase::parseDomain(const std::string& domain_file_path, const std::string& domain_name) {
+    void XYZKnowledgeBase::parseDomain(const std::string& domain_file_path, const std::string& _domain_name) {
 
-        this->domain_name = domain_name;
-        ros_info("Parsing domain file {} using domain name {}", domain_file_path, domain_name);
+        this->domain_name = _domain_name;
+        ros_info("Parsing domain file {} using domain name {}", domain_file_path, _domain_name);
         namespace fsys = boost::filesystem;
         if (!fsys::exists(domain_file_path) ||
             !(fsys::is_regular_file(domain_file_path) || fsys::is_symlink(domain_file_path))) {
@@ -197,13 +197,13 @@ namespace KCL_rosplan {
             std::string command = fmt::format("rosparam load {} {}", domain_file_path, _nh.getNamespace());
             int result = std::system(command.c_str());
             if (result != 0) {
-                ros_warn("Could not load domain file %s", domain_file_path.c_str());
+                ros_warn("Could not load domain file {}", domain_file_path);
             }
         }
 
         // parse the domain file
         XmlRpc::XmlRpcValue domain_xml;
-        string key = _nh.getNamespace() + domain_name;
+        string key = _nh.getNamespace() + _domain_name;
         if (!_nh.getParam(key, domain_xml)) {
             ros_error("Could not read domain from parameter server!");
             return;
@@ -217,6 +217,50 @@ namespace KCL_rosplan {
         this->goal_state = move(domain_parser.goal);
         this->metaActions = move(domain_parser.metaActions);
         this->metaPredicates = move(domain_parser.metaPredicates);
+
+
+        for (const auto& [name, type] : objTypes) {
+            model_instances[type].push_back(name);
+        }
+
+        for (const auto& p : current_state->state) {
+            rosplan_knowledge_msgs::KnowledgeItem item;
+            item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+            item.attribute_name = p.meta->name;
+            item.is_negative = p.neg;
+            for (int i = 0; i < p.parameters.size(); ++i) {
+                diagnostic_msgs::KeyValue kv;
+                kv.key = p.meta->names[i];
+                kv.value = p.parameters[i];
+                item.values.push_back(kv);
+            }
+            model_facts.emplace_back(item);
+        }
+
+        for (const auto& p : goal_state->state) {
+            rosplan_knowledge_msgs::KnowledgeItem item;
+            item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
+            item.attribute_name = p.meta->name;
+            item.is_negative = p.neg;
+            for (int i = 0; i < p.parameters.size(); ++i) {
+                diagnostic_msgs::KeyValue kv;
+                kv.key = p.meta->names[i];
+                kv.value = p.parameters[i];
+                item.values.push_back(kv);
+            }
+            model_goals.emplace_back(item);
+        }
+    }
+
+    bool XYZKnowledgeBase::getCurrent(rosplan_knowledge_msgs::GetAttributeService::Request& req,
+                                      rosplan_knowledge_msgs::GetAttributeService::Response& res) {
+        for (const auto& g: model_facts) {
+            if (!req.predicate_name.empty() && req.predicate_name != g.attribute_name)
+                continue;
+
+            res.attributes.emplace_back(g);
+        }
+        return true;
     }
 
 } // namespace KCL_rosplan

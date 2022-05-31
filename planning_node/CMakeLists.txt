@@ -110,10 +110,11 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES xyz_action_interface
+    LIBRARIES xyz_action_interface rosplan_action_interface
     CATKIN_DEPENDS roscpp rosplan_knowledge_msgs rosplan_planning_msgs rosplan_dispatch_msgs
-#  DEPENDS system_lib
+#    DEPENDS fmt
 )
+
 
 ###########
 ## Build ##
@@ -124,7 +125,7 @@ catkin_package(
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
-    ${fmt_INCLUDE_DIRS}
+#    ${fmt_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -134,19 +135,23 @@ include_directories(
 
 file(GLOB HELLO_NODE_SRC src/planning_node/*.cpp)
 add_executable(hello_node ${HELLO_NODE_SRC} src/xyz_knowledge_base/parser.cpp src/xyz_knowledge_base/data_types.cpp)
-target_link_libraries(hello_node ${catkin_LIBRARIES} fmt::fmt)
+target_link_libraries(hello_node ${catkin_LIBRARIES} fmt)
 
 file(GLOB XYZ_KB_SRC src/xyz_knowledge_base/*.cpp)
 add_executable(xyz_knowledge_base ${XYZ_KB_SRC})
-target_link_libraries(xyz_knowledge_base ${catkin_LIBRARIES} fmt::fmt)
+target_link_libraries(xyz_knowledge_base ${catkin_LIBRARIES} fmt)
 
 file(GLOB XYZ_PLAN_DISPATCH_SRC src/plan_dispatch/*.cpp)
 add_executable(xyz_plan_dispatch ${XYZ_PLAN_DISPATCH_SRC})
-target_link_libraries(xyz_plan_dispatch ${catkin_LIBRARIES} fmt::fmt)
+target_link_libraries(xyz_plan_dispatch ${catkin_LIBRARIES} fmt)
 
 add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp)
-target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt::fmt)
+target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
 add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
+
+#add_library(rosplan_action_interface src/xyz_action_interface/RPActionInterface.cpp)
+#target_link_libraries(rosplan_action_interface ${catkin_LIBRARIES} fmt)
+#add_dependencies(rosplan_action_interface ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -177,7 +182,7 @@ add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
 ## Install ##
 #############
 
-install(TARGETS xyz_action_interface
+install(TARGETS xyz_action_interface fmt EXPORT fmt
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -208,11 +213,11 @@ install(TARGETS xyz_action_interface
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+ install(DIRECTORY include
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+   PATTERN ".svn" EXCLUDE
+ )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES

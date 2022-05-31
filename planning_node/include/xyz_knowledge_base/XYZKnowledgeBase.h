@@ -20,6 +20,7 @@ class XYZKnowledgeBase : public KnowledgeBase {
     // PDDLDomainParser domain_parser;
     planning_node::parser domain_parser;
     std::string domain_name;
+    ros::ServiceServer stateServer6;
   public:
 
     planning_node::StatePtr current_state, initial_state, goal_state;
@@ -31,17 +32,20 @@ class XYZKnowledgeBase : public KnowledgeBase {
     unordered_map<string, shared_ptr<MetaAction>> metaActions;       // actionName -> ptrMetaAction
     unordered_map<string, shared_ptr<MetaPredicate>> metaPredicates; // predName -> ptrMetaPredicate;
 
-    XYZKnowledgeBase(ros::NodeHandle &n) : KnowledgeBase(n){};
+    explicit XYZKnowledgeBase(ros::NodeHandle &n) : KnowledgeBase(n){
+        stateServer6 = n.advertiseService("state/current", &XYZKnowledgeBase::getCurrent, this);
+    };
     ~XYZKnowledgeBase() = default;
 
     /* parse domain and probelm files */
-    void parseDomain(const std::string &domain_file_path, const std::string &problem_file_path) override;
+    void parseDomain(const std::string &domain_file_path, const std::string &_domain_name) override;
 
     /* add the initial state to the knowledge base */
     void addInitialState() override;
     void addConstants() override{};
 
     bool getGoals(rosplan_knowledge_msgs::GetAttributeService::Request &req, rosplan_knowledge_msgs::GetAttributeService::Response &res) override;
+    bool getCurrent(rosplan_knowledge_msgs::GetAttributeService::Request &req, rosplan_knowledge_msgs::GetAttributeService::Response &res);
 
     /* service methods for fetching the domain details */
     bool getDomainName(rosplan_knowledge_msgs::GetDomainNameService::Request &req, rosplan_knowledge_msgs::GetDomainNameService::Response &res) override;

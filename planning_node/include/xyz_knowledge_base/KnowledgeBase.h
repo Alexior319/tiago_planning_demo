@@ -147,6 +147,7 @@ class KnowledgeBase {
 
     /* publish status */
     void publishStatusUpdate(ros::Time &time, std::string &caller_id);
+    std::string toString(const rosplan_knowledge_msgs::KnowledgeItem& item);
 
     /* main loop */
     void runKnowledgeBase();

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="domain_path" default="$(find planning_node)/files/yaml/domain.yaml" />
+    <arg name="domain_name" default="/planning" />
+
+    <arg name="plan_topic" default="/xyz_knowledge_base/planner_output" />
+
+
+    <arg name="action_dispatch_topic" default="/xyz_plan_dispatch/action_dispatch" />
+    <arg name="action_feedback_topic" default="/xyz_plan_dispatch/action_feedback" />
+
+    <include file="$(find planning_node)/launch/xyz_knowledge_base.launch" >
+        <arg name="domain_path" value="$(arg domain_path)" />
+        <arg name="domain_name" value="$(arg domain_name)" />
+    </include>
+
+
+    <include file="$(find planning_node)/launch/xyz_plan_dispatch.launch" >
+        <arg name="plan_topic" value="$(arg plan_topic)" />
+    </include>
+
+    <rosparam file="$(find tiago_serving_demo)/config/waypoints.yaml" command="load" />
+
+<!--    <node name="action_goto_waypoint" type="action_goto_waypoint" pkg="tiago_serving_demo" output="screen">-->
+<!--        <param name="knowledge_base" value="xyz_knowledge_base" />-->
+<!--        <param name="wp_namespace" value="/nav_wps" />-->
+<!--        <param name="action_name" value="goto_waypoint" />-->
+<!--        <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />-->
+<!--        <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />-->
+<!--    </node>-->
+
+<!--    <node name="action_goto_waypoint" type="action_dummy" pkg="tiago_serving_demo" output="screen">-->
+<!--        <param name="knowledge_base" value="xyz_knowledge_base" />-->
+<!--        <param name="wp_namespace" value="/nav_wps" />-->
+<!--        <param name="action_name" value="goto_waypoint" />-->
+<!--        <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />-->
+<!--        <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />-->
+<!--    </node>-->
+
+</launch>
