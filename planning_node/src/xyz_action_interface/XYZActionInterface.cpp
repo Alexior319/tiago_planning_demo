@@ -61,7 +61,7 @@ namespace planning_node {
             // update knowledge base
             rosplan_knowledge_msgs::KnowledgeUpdateServiceArray updatePredSrv;
 
-            if (isSensingAction()) {
+            if (!isSensingAction()) {
                 for (size_t i = 0; i < op.at_end_add_effects.size(); ++i) {
                     if (at_end_add_effects_results[i]) {
                         rosplan_knowledge_msgs::KnowledgeItem item;
@@ -97,7 +97,6 @@ namespace planning_node {
                                 rosplan_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
                     }
                 }
-
             } else {
                 // simple END del effects
                 for (auto& at_end_del_effect: op.at_end_del_effects) {
@@ -140,7 +139,35 @@ namespace planning_node {
 
             // publish feedback (achieved)
             fb.status = rosplan_dispatch_msgs::ActionFeedback::ACTION_SUCCEEDED_TO_GOAL_STATE;
+            fb.pause_dispatch = isSensingAction();
             action_feedback_pub.publish(fb);
+            ros::Duration(1.0).sleep();
+
+            if (isSensingAction()) {
+                ros::NodeHandle nh;
+                std::stringstream ss;
+                std_srvs::Empty emptySrv;
+
+//                // pause dispatch
+//                ss << pdn << "/pause_dispatch";
+//                ros::service::waitForService(ss.str(), ros::Duration(2));
+//                ros::ServiceClient srvClient1 = nh.serviceClient<std_srvs::Empty>(ss.str());
+//                srvClient1.call(emptySrv);
+
+                // planning
+                ss.str("");
+                ss << kb << "/planning_server";
+                ros::service::waitForService(ss.str(), ros::Duration(2));
+                ros::ServiceClient srvClient2 = nh.serviceClient<std_srvs::Empty>(ss.str());
+                srvClient2.call(emptySrv);
+
+                // continue dispatch
+                ss.str("");
+                ss << pdn << "/continue_dispatch";
+                ros::service::waitForService(ss.str(), ros::Duration(2));
+                ros::ServiceClient srvClient3 = nh.serviceClient<std_srvs::Empty>(ss.str());
+                srvClient3.call(emptySrv);
+            }
 
         } else {
 
@@ -153,7 +180,6 @@ namespace planning_node {
     void XYZActionInterface::runActionInterface() {
         ros::NodeHandle nh("~");
         nh.getParam("action_name", params.name);
-        std::string kb = "knowledge_base";
         nh.getParam("knowledge_base", kb);
 
         // fetch action params
@@ -258,6 +284,9 @@ namespace planning_node {
         std::string adt = "default_dispatch_topic";
         nh.getParam("action_dispatch_topic", adt);
         action_dispatch_sub = nh.subscribe(adt, 1000, &XYZActionInterface::dispatchCallback, this);
+
+        nh.getParam("plan_dispatch_node", pdn);
+
 
         ROS_INFO("XYZ: (%s) ready to receive.", ros::this_node::getName().c_str());
 

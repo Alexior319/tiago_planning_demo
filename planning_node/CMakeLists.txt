@@ -149,10 +149,6 @@ add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp
 target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
 add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
 
-#add_library(rosplan_action_interface src/xyz_action_interface/RPActionInterface.cpp)
-#target_link_libraries(rosplan_action_interface ${catkin_LIBRARIES} fmt)
-#add_dependencies(rosplan_action_interface ${catkin_EXPORTED_TARGETS})
-
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

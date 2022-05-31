@@ -10,7 +10,6 @@
 #include <move_base_msgs//MoveBaseAction.h>
 
 #include <xyz_action_interface/XYZActionInterface.h>
-//#include <xyz_action_interface/RPActionInterface.h>
 
 
 namespace tiago_demo {

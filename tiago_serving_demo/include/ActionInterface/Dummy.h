@@ -5,7 +5,6 @@
 #ifndef ROS_PROJECT_DUMMY_H
 #define ROS_PROJECT_DUMMY_H
 
-#include <xyz_action_interface/RPActionInterface.h>
 #include "xyz_action_interface/XYZActionInterface.h"
 
 namespace tiago_demo {

@@ -16,6 +16,8 @@ namespace planning_node {
 
         dispatch_server = _nh.advertiseService("dispatch_plan", &planning_node::XYZPlanDispatch::dispatchPlanService,
                                                this);
+        pause_dispatch_server = _nh.advertiseService("pause_dispatch", &planning_node::XYZPlanDispatch::pauseDispatchService, this);
+        recover_dispatch_server = _nh.advertiseService("continue_dispatch", &planning_node::XYZPlanDispatch::recoverDispatchService, this);
         feedback_subscriber = _nh.subscribe(action_feedback_topic, 1000,
                                             &planning_node::XYZPlanDispatch::feedbackCallback, this);
 
@@ -31,11 +33,12 @@ namespace planning_node {
         ros::Rate loop_rate(10);
         while (ros::ok() && current_plan.plan.size() > current_action) {
 
-//            // loop while dispatch is paused
-//            while (ros::ok() && dispatch_paused) {
-//                ros::spinOnce();
-//                loop_rate.sleep();
-//            }
+            // loop while dispatch is paused
+            while (ros::ok() && dispatch_paused) {
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+            if (current_plan.plan.empty()) break;
 //
 //            // cancel plan
 //            if(plan_cancelled) {
@@ -70,6 +73,14 @@ namespace planning_node {
                 ros::spinOnce();
                 loop_rate.sleep();
             }
+            if (dispatch_paused) {
+
+                action_completed.clear();
+                action_received.clear();
+
+                continue;
+            }
+            ros_info("Action completed: {}", current_action);
 
             // get ready for next action
             current_action++;
@@ -90,6 +101,8 @@ namespace planning_node {
         ros_info("XYZPlanDispatch: Plan received.");
         plan_received = true;
         current_plan = *plan;
+        current_action = 0;
+//        dispatch_paused = false;
     }
 
     void XYZPlanDispatch::feedbackCallback(const rosplan_dispatch_msgs::ActionFeedback::ConstPtr& msg) {
@@ -105,14 +118,31 @@ namespace planning_node {
 
         // action completed (successfuly)
         if (!action_completed[msg->action_id] &&
-            msg->status == rosplan_dispatch_msgs::ActionFeedback::ACTION_SUCCEEDED_TO_GOAL_STATE)
+            msg->status == rosplan_dispatch_msgs::ActionFeedback::ACTION_SUCCEEDED_TO_GOAL_STATE) {
             action_completed[msg->action_id] = true;
+            if (msg->pause_dispatch) {
+                dispatch_paused = true;
+                ros_info("Pausing dispatch");
+            }
+        }
 
         // action completed (failed)
         if (!action_completed[msg->action_id] && msg->status == rosplan_dispatch_msgs::ActionFeedback::ACTION_FAILED) {
 //            replan_requested = true;
             action_completed[msg->action_id] = true;
         }
+    }
+
+    bool XYZPlanDispatch::pauseDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
+        ros_info("XYZPlanDispatch: Plan dispatch paused.");
+        dispatch_paused = true;
+        return true;
+    }
+
+    bool XYZPlanDispatch::recoverDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
+        ros_info("XYZPlanDispatch: Plan dispatch recovered.");
+        dispatch_paused = false;
+        return true;
     }
 
 

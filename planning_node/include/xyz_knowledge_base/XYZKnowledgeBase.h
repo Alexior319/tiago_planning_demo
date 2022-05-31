@@ -55,6 +55,8 @@ class XYZKnowledgeBase : public KnowledgeBase {
     bool getOperators(rosplan_knowledge_msgs::GetDomainOperatorService::Request &req, rosplan_knowledge_msgs::GetDomainOperatorService::Response &res) override;
     bool getOperatorDetails(rosplan_knowledge_msgs::GetDomainOperatorDetailsService::Request &req, rosplan_knowledge_msgs::GetDomainOperatorDetailsService::Response &res) override;
     bool getPredicateDetails(rosplan_knowledge_msgs::GetDomainPredicateDetailsService::Request &req, rosplan_knowledge_msgs::GetDomainPredicateDetailsService::Response &res) override;
+
+    const vector<rosplan_knowledge_msgs::KnowledgeItem>& getState() const;
 };
 } // namespace KCL_rosplan
 

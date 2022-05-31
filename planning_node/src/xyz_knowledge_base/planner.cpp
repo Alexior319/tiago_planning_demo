@@ -165,9 +165,19 @@ namespace planning_node {
     bool planner::runPlanningServerDefault(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
         ros_info("Running planner server");
         rosplan_dispatch_msgs::CompletePlan plan;
-        auto got_plan = planning(kb_ptr->current_state, kb_ptr->goal_state);
-        if (got_plan.empty()) return false;
 
+        auto state = make_shared<State>();
+        for (const auto& fact : kb_ptr->getState()) {
+            Predicate p;
+            p.meta = kb_ptr->metaPredicates[fact.attribute_name];
+            p.neg = fact.is_negative;
+            for (const auto & [k, v] : fact.values) {
+                p.parameters.push_back(v);
+            }
+            state->add(p);
+        }
+
+        auto got_plan = planning(state, kb_ptr->goal_state);
 
         for (int action_id = 0; action_id < got_plan.size(); ++action_id) {
             rosplan_dispatch_msgs::ActionDispatch a;

@@ -237,6 +237,8 @@ namespace KCL_rosplan {
             model_facts.emplace_back(item);
         }
 
+
+
         for (const auto& p : goal_state->state) {
             rosplan_knowledge_msgs::KnowledgeItem item;
             item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
@@ -261,6 +263,10 @@ namespace KCL_rosplan {
             res.attributes.emplace_back(g);
         }
         return true;
+    }
+
+    const vector<rosplan_knowledge_msgs::KnowledgeItem>& XYZKnowledgeBase::getState() const {
+        return model_facts;
     }
 
 } // namespace KCL_rosplan

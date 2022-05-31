@@ -9,6 +9,7 @@
 #include <rosplan_dispatch_msgs/DispatchService.h>
 #include <rosplan_dispatch_msgs/CompletePlan.h>
 #include <rosplan_dispatch_msgs/ActionFeedback.h>
+#include <std_srvs/Empty.h>
 
 #include "common.h"
 
@@ -20,7 +21,7 @@ namespace planning_node {
         ros::NodeHandle& _nh;
         rosplan_dispatch_msgs::CompletePlan current_plan;
         bool plan_received{false};
-        ros::ServiceServer dispatch_server;
+        ros::ServiceServer dispatch_server, pause_dispatch_server, recover_dispatch_server;
         ros::Publisher dispatch_pub, feedback_pub;
         ros::Subscriber feedback_subscriber, plan_subscriber;
 
@@ -28,6 +29,7 @@ namespace planning_node {
         std::string action_feedback_topic;
 
         int current_action{0};
+        bool dispatch_paused{false};
 
         std::map<int,bool> action_received;
         std::map<int,bool> action_completed;
@@ -37,6 +39,8 @@ namespace planning_node {
 
         bool dispatchPlanService(rosplan_dispatch_msgs::DispatchService::Request& req,
                                  rosplan_dispatch_msgs::DispatchService::Response& res);
+        bool pauseDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+        bool recoverDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
         void planCallback(const rosplan_dispatch_msgs::CompletePlan::ConstPtr& plan);
         void feedbackCallback(const rosplan_dispatch_msgs::ActionFeedback::ConstPtr& msg);

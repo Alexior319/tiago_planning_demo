@@ -21,13 +21,14 @@
 
     <rosparam file="$(find tiago_serving_demo)/config/waypoints.yaml" command="load" />
 
-<!--    <node name="action_goto_waypoint" type="action_goto_waypoint" pkg="tiago_serving_demo" output="screen">-->
-<!--        <param name="knowledge_base" value="xyz_knowledge_base" />-->
-<!--        <param name="wp_namespace" value="/nav_wps" />-->
-<!--        <param name="action_name" value="goto_waypoint" />-->
-<!--        <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />-->
-<!--        <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />-->
-<!--    </node>-->
+    <node name="action_goto_waypoint" type="action_goto_waypoint" pkg="tiago_serving_demo" output="screen">
+        <param name="knowledge_base" value="xyz_knowledge_base" />
+        <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
+        <param name="wp_namespace" value="/nav_wps" />
+        <param name="action_name" value="goto_waypoint" />
+        <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />
+        <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
+    </node>
 
 <!--    <node name="action_goto_waypoint" type="action_dummy" pkg="tiago_serving_demo" output="screen">-->
 <!--        <param name="knowledge_base" value="xyz_knowledge_base" />-->

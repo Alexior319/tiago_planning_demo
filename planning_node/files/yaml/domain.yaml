@@ -2,6 +2,7 @@ planning:
     initial:
         - robot_at(tiago, wp0)
         - -robot_at(tiago, wp1)
+#        - -robot_at(tiago, wp0)
 
         - connected(wp0, wp1)
         - connected(wp0, wp3)
@@ -19,6 +20,7 @@ planning:
         - -on_table(glass, table1)
         - emptyhand(tiago)
         - visited(wp0)
+#        - visited(wp3)
 
     goal:
         # - in_hand(tiago, glass)

@@ -11,3 +11,4 @@ int32 action_id
 int32 plan_id
 int32 status
 diagnostic_msgs/KeyValue[] information
+bool pause_dispatch

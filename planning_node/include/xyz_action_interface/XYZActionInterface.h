@@ -10,6 +10,7 @@
 #include <rosplan_knowledge_msgs/DomainFormula.h>
 #include <rosplan_knowledge_msgs/GetDomainOperatorDetailsService.h>
 #include <unordered_map>
+#include <std_srvs/Empty.h>
 
 namespace planning_node {
     class XYZActionInterface {
@@ -25,6 +26,8 @@ namespace planning_node {
         ros::Subscriber action_dispatch_sub;
         bool action_cancelled{false};
         bool action_success{false};
+
+        std::string pdn, kb;
     public:
         XYZActionInterface() = default;
 
