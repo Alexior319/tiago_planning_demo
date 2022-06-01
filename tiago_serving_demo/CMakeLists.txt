@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(tiago_serving_demo)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++17)
+#CMAKE_CXX_STANDARD(17)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -136,6 +137,9 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(action_goto_waypoint src/ActionInterface/GotoWaypoint.cpp)
 target_link_libraries(action_goto_waypoint ${catkin_LIBRARIES})
+
+add_executable(action_watch_table src/ActionInterface/WatchTable.cpp)
+target_link_libraries(action_watch_table ${catkin_LIBRARIES})
 
 add_executable(action_dummy src/ActionInterface/Dummy.cpp)
 target_link_libraries(action_dummy ${catkin_LIBRARIES})

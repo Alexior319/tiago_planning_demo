@@ -14,7 +14,7 @@ namespace planning_node {
             return;
         }
 
-//        ros_info("{}", planning_data.toXml());
+//        run_info("{}", planning_data.toXml());
 
         string members[] = {"initial", "goal", "types", "predicates", "actions"};
         planning_data.getType();
@@ -62,7 +62,7 @@ namespace planning_node {
         }
 
         generatePossibleActions();
-//        ros_info("Possible actions: {}", allPossibleActions);
+//        run_info("Possible actions: {}", allPossibleActions);
     }
 
     void parser::parseDomain(const ros::NodeHandle& nh, const string& domain_name) {
@@ -320,8 +320,8 @@ namespace planning_node {
         for (const auto& [name, metaAction] : this->metaActions) {
             backtrack(paras, metaAction);
         }
-//        ros_info("Generating done. {} possible actions.", this->allPossibleActions.size());
-//        ros_info("{}", this->allPossibleActions);
+//        run_info("Generating done. {} possible actions.", this->allPossibleActions.size());
+//        run_info("{}", this->allPossibleActions);
     }
 
     bool parser::startsWith(const string& s, const string& prefix) noexcept {

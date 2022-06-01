@@ -39,9 +39,9 @@ namespace planning_node {
                         ++nodesNum;
                         if (visited(bfsSeen, newState)) continue;
 
-                        ros_info("From state: {}", node);
-                        ros_info("Apply action: {}", a);
-                        ros_info("To state: {}", newState);
+                        run_info("From state: {}", node);
+                        run_info("Apply action: {}", a);
+                        run_info("To state: {}", newState);
 
                         q.emplace(newState);
                         bfsSeen.emplace(newState);
@@ -50,7 +50,7 @@ namespace planning_node {
             }
         }
         reverse(plan.begin(), plan.end());
-        ros_info("Expanded nodes: {}", nodesNum);
+        run_info("Expanded nodes: {}", nodesNum);
         return plan;
     }
 
@@ -90,11 +90,11 @@ namespace planning_node {
 
                         hasRevelant = true;
 #ifndef NDEBUG
-//                        ros_info("From state: {}", node);
-//                        ros_info("Apply action: {}", a);
-//                        ros_info("To state: {}", newState);
-//                        ros_info("Prev: {}", newState->apply(a));
-//                        ros_info("");
+//                        run_info("From state: {}", node);
+//                        run_info("Apply action: {}", a);
+//                        run_info("To state: {}", newState);
+//                        run_info("Prev: {}", newState->apply(a));
+//                        run_info("");
 #endif
                         q.emplace(newState);
                         bfsSeen.emplace(newState);
@@ -102,11 +102,11 @@ namespace planning_node {
                 }
 
                 if(!hasRevelant) {
-                    ros_info("End state: {}", node);
+                    run_info("End state: {}", node);
                 }
             }
         }
-        ros_info("Expanded nodes: {}", nodesNum);
+        run_info("Expanded nodes: {}", nodesNum);
         return plan;
     }
 

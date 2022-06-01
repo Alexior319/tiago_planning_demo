@@ -61,7 +61,7 @@ namespace planning_node {
             // update knowledge base
             rosplan_knowledge_msgs::KnowledgeUpdateServiceArray updatePredSrv;
 
-            if (!isSensingAction()) {
+            if (isSensingAction()) {
                 for (size_t i = 0; i < op.at_end_add_effects.size(); ++i) {
                     if (at_end_add_effects_results[i]) {
                         rosplan_knowledge_msgs::KnowledgeItem item;
@@ -83,13 +83,13 @@ namespace planning_node {
                     if (at_end_del_effects_results[i]) {
                         rosplan_knowledge_msgs::KnowledgeItem item;
                         item.knowledge_type = rosplan_knowledge_msgs::KnowledgeItem::FACT;
-                        item.attribute_name = op.at_end_add_effects[i].name;
+                        item.attribute_name = op.at_end_del_effects[i].name;
                         item.is_negative = true;
                         item.values.clear();
                         diagnostic_msgs::KeyValue pair;
-                        for (size_t j = 0; j < op.at_end_add_effects[i].typed_parameters.size(); j++) {
-                            pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
-                            pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
+                        for (size_t j = 0; j < op.at_end_del_effects[i].typed_parameters.size(); j++) {
+                            pair.key = predicates[op.at_end_del_effects[i].name].typed_parameters[j].key;
+                            pair.value = boundParameters[op.at_end_del_effects[i].typed_parameters[j].key];
                             item.values.push_back(pair);
                         }
                         updatePredSrv.request.knowledge.push_back(item);
@@ -196,6 +196,11 @@ namespace planning_node {
             ROS_ERROR("KCL: (XYZActionInterface) could not call Knowledge Base for operator details, %s",
                       params.name.c_str());
             return;
+        }
+
+        if (isSensingAction()) {
+            at_end_add_effects_results.resize(op.at_end_add_effects.size(), false);
+            at_end_del_effects_results.resize(op.at_end_del_effects.size(), false);
         }
 
 

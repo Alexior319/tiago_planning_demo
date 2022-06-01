@@ -186,7 +186,7 @@ namespace KCL_rosplan {
     void XYZKnowledgeBase::parseDomain(const std::string& domain_file_path, const std::string& _domain_name) {
 
         this->domain_name = _domain_name;
-        ros_info("Parsing domain file {} using domain name {}", domain_file_path, _domain_name);
+        run_info("Parsing domain file {} using domain name {}", domain_file_path, _domain_name);
         namespace fsys = boost::filesystem;
         if (!fsys::exists(domain_file_path) ||
             !(fsys::is_regular_file(domain_file_path) || fsys::is_symlink(domain_file_path))) {
@@ -293,10 +293,10 @@ int main(int argc, char **argv) {
         ros_error("Invalid domain filename extension: {}", ext);
         ros::shutdown();
     }
-    ros_info("Starting a XYZ knowledge base.");
+    run_info("Starting a XYZ knowledge base.");
     auto xyzKB = std::make_unique<KCL_rosplan::XYZKnowledgeBase>(nh);
     xyzKB->parseDomain(domainPath, domainName);
-    ros_info("(XYZKB): Ready to receive");
+    run_info("(XYZKB): Ready to receive");
 
     planning_node::planner planner(nh, xyzKB);
 

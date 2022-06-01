@@ -110,7 +110,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES xyz_action_interface rosplan_action_interface
+    LIBRARIES xyz_action_interface
     CATKIN_DEPENDS roscpp rosplan_knowledge_msgs rosplan_planning_msgs rosplan_dispatch_msgs
 #    DEPENDS fmt
 )

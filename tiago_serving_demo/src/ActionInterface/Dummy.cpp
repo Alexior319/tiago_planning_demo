@@ -8,7 +8,7 @@ bool tiago_demo::DummyActionInterface::concreteCallback(const rosplan_dispatch_m
     ros::NodeHandle nh("~");
     // set action name
     std::string action_name;
-    nh.getParam("pddl_action_name", action_name);
+    nh.getParam("action_name", action_name);
     ROS_INFO("(ActionInterface: %s): concreteCallback", action_name.c_str());
     return true;
 }

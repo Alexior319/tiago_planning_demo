@@ -14,7 +14,7 @@ namespace planning_node {
         planning_server = _nh.advertiseService("planning_server", &planning_node::planner::runPlanningServerDefault,
                                                this);
 
-        ros_info("(XYZPlanner): Ready to receive.");
+        run_info("(XYZPlanner): Ready to receive.");
     }
 
 
@@ -52,9 +52,9 @@ namespace planning_node {
                         ++nodesNum;
                         if (visited(bfsSeen, newState)) continue;
 
-//                        ros_info("From state: {}", node);
-//                        ros_info("Apply action: {}", a);
-//                        ros_info("To state: {}", newState);
+//                        run_info("From state: {}", node);
+//                        run_info("Apply action: {}", a);
+//                        run_info("To state: {}", newState);
 
                         q.emplace(newState);
                         bfsSeen.emplace(newState);
@@ -62,7 +62,7 @@ namespace planning_node {
                 }
             }
         }
-//        ros_info("Expanded nodes: {}", nodesNum);
+//        run_info("Expanded nodes: {}", nodesNum);
         return plan;
     }
 
@@ -102,11 +102,11 @@ namespace planning_node {
 
                         hasRevelant = true;
 #ifndef NDEBUG
-//                        ros_info("From state: {}", node);
-//                        ros_info("Apply action: {}", a);
-//                        ros_info("To state: {}", newState);
-//                        ros_info("Prev: {}", newState->apply(a));
-//                        ros_info("");
+//                        run_info("From state: {}", node);
+//                        run_info("Apply action: {}", a);
+//                        run_info("To state: {}", newState);
+//                        run_info("Prev: {}", newState->apply(a));
+//                        run_info("");
 #endif
                         q.emplace(newState);
                         bfsSeen.emplace(newState);
@@ -114,11 +114,11 @@ namespace planning_node {
                 }
 
                 if (!hasRevelant) {
-                    ros_info("End state: {}", node);
+                    run_info("End state: {}", node);
                 }
             }
         }
-        ros_info("Expanded nodes: {}", nodesNum);
+        run_info("Expanded nodes: {}", nodesNum);
         return plan;
     }
 
@@ -163,7 +163,7 @@ namespace planning_node {
     }
 
     bool planner::runPlanningServerDefault(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-        ros_info("Running planner server");
+        run_info("Running planner server");
         rosplan_dispatch_msgs::CompletePlan plan;
 
         auto state = make_shared<State>();
@@ -176,8 +176,13 @@ namespace planning_node {
             }
             state->add(p);
         }
+        if (state->contains(kb_ptr->goal_state)) {
+            run_info("No need to plan.");
+            return true;
+        }
 
         auto got_plan = planning(state, kb_ptr->goal_state);
+        run_info("Got plan: {}", got_plan);
 
         for (int action_id = 0; action_id < got_plan.size(); ++action_id) {
             rosplan_dispatch_msgs::ActionDispatch a;
@@ -196,6 +201,9 @@ namespace planning_node {
         }
         plan_publisher.publish(plan);
         ++plan_id;
+        if (got_plan.empty()) {
+            ros_error("Problem unsolvable.");
+        }
         return true;
     }
 }

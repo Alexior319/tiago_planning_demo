@@ -24,7 +24,7 @@ namespace planning_node {
         std::string plan_topic;
         _nh.param("plan_topic", plan_topic, std::string("complete_plan"));
         plan_subscriber = _nh.subscribe(plan_topic, 100, &planning_node::XYZPlanDispatch::planCallback, this);
-        ros_info("({}): Ready to receive.", ros::this_node::getName());
+        run_info("({}): Ready to receive.", ros::this_node::getName());
 
     }
 
@@ -56,7 +56,7 @@ namespace planning_node {
             }
             params += ")";
             // dispatch action
-            ros_info("KCL: ({}) Dispatching action [{}, {}{}]", ros::this_node::getName(), currentMessage.action_id,
+            run_info("KCL: ({}) Dispatching action [{}, {}{}]", ros::this_node::getName(), currentMessage.action_id,
                      currentMessage.name,
                      params);
 
@@ -80,7 +80,7 @@ namespace planning_node {
 
                 continue;
             }
-            ros_info("Action completed: {}", current_action);
+            run_info("Action completed: {}", current_action);
 
             // get ready for next action
             current_action++;
@@ -91,14 +91,14 @@ namespace planning_node {
 //            if (replan_requested) return false;
         }
 
-        ros_info("({}) Dispatch complete.", ros::this_node::getName());
+        run_info("({}) Dispatch complete.", ros::this_node::getName());
         res.goal_achieved = true;
         res.success = true;
         return true;
     }
 
     void XYZPlanDispatch::planCallback(const rosplan_dispatch_msgs::CompletePlan::ConstPtr& plan) {
-        ros_info("XYZPlanDispatch: Plan received.");
+        run_info("XYZPlanDispatch: Plan received.");
         plan_received = true;
         current_plan = *plan;
         current_action = 0;
@@ -107,9 +107,9 @@ namespace planning_node {
 
     void XYZPlanDispatch::feedbackCallback(const rosplan_dispatch_msgs::ActionFeedback::ConstPtr& msg) {
         // create error if the action is unrecognised
-        ros_info("({}) Feedback received [{}, {}]", ros::this_node::getName(), msg->action_id, msg->status);
+        run_info("({}) Feedback received [{}, {}]", ros::this_node::getName(), msg->action_id, msg->status);
         if (current_action != (unsigned int) msg->action_id)
-            ros_info("({}) Unexpected action ID: {}; current action: {}", ros::this_node::getName(),
+            run_info("({}) Unexpected action ID: {}; current action: {}", ros::this_node::getName(),
                       msg->action_id, current_action);
 
         // action enabled
@@ -122,7 +122,7 @@ namespace planning_node {
             action_completed[msg->action_id] = true;
             if (msg->pause_dispatch) {
                 dispatch_paused = true;
-                ros_info("Pausing dispatch");
+                run_info("Pausing dispatch");
             }
         }
 
@@ -134,13 +134,13 @@ namespace planning_node {
     }
 
     bool XYZPlanDispatch::pauseDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-        ros_info("XYZPlanDispatch: Plan dispatch paused.");
+        run_info("XYZPlanDispatch: Plan dispatch paused.");
         dispatch_paused = true;
         return true;
     }
 
     bool XYZPlanDispatch::recoverDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-        ros_info("XYZPlanDispatch: Plan dispatch recovered.");
+        run_info("XYZPlanDispatch: Plan dispatch recovered.");
         dispatch_paused = false;
         return true;
     }

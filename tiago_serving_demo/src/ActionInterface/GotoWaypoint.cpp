@@ -45,6 +45,7 @@ namespace tiago_demo {
     }
 
     bool GotoWaypointAction::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
+//        return true;
 
         // get waypoint ID from action dispatch msg
         std::string wpID;
