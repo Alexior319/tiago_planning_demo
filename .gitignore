@@ -6,3 +6,5 @@ build
 devel
 .catkin_tools
 logs
+
+.vscode/browse*

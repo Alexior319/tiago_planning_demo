@@ -2,5 +2,10 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cmake.configureSettings": {
         "CATKIN_DEVEL_PREFIX": "${workspaceRoot}/devel"
-    }
+    },
+    "python.autoComplete.extraPaths": [
+        "/home/xyz/workspace/tiago_planning_demo/devel/lib/python2.7/dist-packages",
+        "/home/xyz/depend_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
 }
