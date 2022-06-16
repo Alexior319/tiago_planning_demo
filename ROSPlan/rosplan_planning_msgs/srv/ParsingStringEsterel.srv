@@ -1,5 +1,0 @@
-# parses a plan from a file
-string plan
----
-rosplan_dispatch_msgs/EsterelPlan parsed_plan
-bool success
