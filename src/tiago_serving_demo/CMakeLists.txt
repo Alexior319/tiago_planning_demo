@@ -2,18 +2,23 @@ cmake_minimum_required(VERSION 3.0.2)
 project(tiago_serving_demo)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
- add_compile_options(-std=c++17)
+add_compile_options(-std=c++17)
 #CMAKE_CXX_STANDARD(17)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    planning_node
-    move_base_msgs
-    actionlib
-)
+        roscpp
+        rospy
+        planning_node
+        move_base_msgs
+        actionlib
+        tf2
+        tf2_ros
+        geometry_msgs
+        std_msgs
+        )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -105,10 +110,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    INCLUDE_DIRS include
-#  LIBRARIES tiago_serving_demo
-#   CATKIN_DEPENDS roscpp
-#   DEPENDS roscpp std_msgs
+        INCLUDE_DIRS include
+        #  LIBRARIES tiago_serving_demo
+        CATKIN_DEPENDS roscpp geometry_msgs
+        #   DEPENDS roscpp std_msgs
 )
 
 ###########
@@ -118,8 +123,8 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -137,6 +142,11 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(action_goto_waypoint src/ActionInterface/GotoWaypoint.cpp)
 target_link_libraries(action_goto_waypoint ${catkin_LIBRARIES})
+
+add_executable(action_pick src/ActionInterface/Pick.cpp)
+target_link_libraries(action_pick ${catkin_LIBRARIES})
+add_executable(action_place src/ActionInterface/Place.cpp)
+target_link_libraries(action_place ${catkin_LIBRARIES})
 
 add_executable(action_watch_table src/ActionInterface/WatchTable.cpp)
 target_link_libraries(action_watch_table ${catkin_LIBRARIES})

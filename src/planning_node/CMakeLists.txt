@@ -123,8 +123,16 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
     include
+    src
+    src/VALfiles
     ${catkin_INCLUDE_DIRS}
 #    ${fmt_INCLUDE_DIRS}
+)
+
+set(VAL_SOURCES
+    src/VALfiles/DebugWriteController.cpp
+    src/VALfiles/pddl+.cpp
+    src/VALfiles/ptree.cpp
 )
 
 ## Declare a C++ library
@@ -147,6 +155,10 @@ target_link_libraries(xyz_plan_dispatch ${catkin_LIBRARIES} fmt)
 add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp)
 target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
 add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
+
+file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp)
+add_executable(pddl_knowledge_base ${PDDL_KB_SRC} ${VAL_SOURCES})
+target_link_libraries(pddl_knowledge_base ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

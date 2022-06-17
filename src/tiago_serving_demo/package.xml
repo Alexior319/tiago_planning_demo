@@ -54,6 +54,10 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>actionlib</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2</depend>
+  <depend>tf</depend>
+  <depend>geometry_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -11,37 +11,6 @@
 
 namespace tiago_demo {
 
-
-    bool WatchTableAction::wpIDtoPoseStamped(const std::string& wpID, geometry_msgs::PoseStamped& result) {
-
-        ros::NodeHandle nh;
-        std::vector<double> wp;
-        if (nh.hasParam(wp_namespace_ + "/" + wpID)) {
-            if (nh.getParam(wp_namespace_ + "/" + wpID, wp)) {
-                if (wp.size() == 3) {
-                    result.header.frame_id = waypoint_frameid_;
-                    result.pose.position.x = wp[0];
-                    result.pose.position.y = wp[1];
-
-                    tf2::Quaternion q;
-                    q.setRPY(0.0, 0.0, wp[2]);
-                    result.pose.orientation.x = q[0];
-                    result.pose.orientation.y = q[1];
-                    result.pose.orientation.z = q[2];
-                    result.pose.orientation.w = q[3];
-
-                    return true;
-                } else {
-                    ROS_ERROR("wp size must be equal to 3 : (x, y, and theta)");
-                    return false;
-                }
-            }
-        } else
-            return false;
-
-        return false;
-    }
-
     bool WatchTableAction::concreteCallback(const xyz_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
         std::unordered_map<std::string, std::string> boundParameters;
         for (auto& typed_parameter: params.typed_parameters) {
@@ -53,7 +22,7 @@ namespace tiago_demo {
             }
         }
 
-        std::string current_table = "table2";
+        std::string current_table = "table1";
         for (const auto& para: msg->parameters) {
             // watch_table(r, t, wp, obj)
             // eff: on_table(obj, t) -on_table(obj, t)
