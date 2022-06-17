@@ -143,14 +143,17 @@ set(VAL_SOURCES
 file(GLOB HELLO_NODE_SRC src/planning_node/*.cpp)
 add_executable(hello_node ${HELLO_NODE_SRC} src/xyz_knowledge_base/parser.cpp src/xyz_knowledge_base/data_types.cpp)
 target_link_libraries(hello_node ${catkin_LIBRARIES} fmt)
+add_dependencies(hello_node ${catkin_EXPORTED_TARGETS})
 
 file(GLOB XYZ_KB_SRC src/xyz_knowledge_base/*.cpp)
 add_executable(xyz_knowledge_base ${XYZ_KB_SRC})
 target_link_libraries(xyz_knowledge_base ${catkin_LIBRARIES} fmt)
+add_dependencies(xyz_knowledge_base ${catkin_EXPORTED_TARGETS})
 
 file(GLOB XYZ_PLAN_DISPATCH_SRC src/plan_dispatch/*.cpp)
 add_executable(xyz_plan_dispatch ${XYZ_PLAN_DISPATCH_SRC})
 target_link_libraries(xyz_plan_dispatch ${catkin_LIBRARIES} fmt)
+add_dependencies(xyz_plan_dispatch ${catkin_EXPORTED_TARGETS})
 
 add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp)
 target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
@@ -159,6 +162,7 @@ add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
 file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp)
 add_executable(pddl_knowledge_base ${PDDL_KB_SRC} ${VAL_SOURCES})
 target_link_libraries(pddl_knowledge_base ${catkin_LIBRARIES})
+add_dependencies(pddl_knowledge_base ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
