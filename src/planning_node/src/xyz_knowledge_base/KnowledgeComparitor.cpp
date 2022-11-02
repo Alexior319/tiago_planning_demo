@@ -71,7 +71,7 @@ namespace KCL_rosplan {
 		return getValue(result, modelFunctions);
 	}
 
-	/* 
+	/*
 	 * evaluate numeric expression between two ExprBase messages.
 	 */
 	double KnowledgeComparitor::evaluateOperation(const double &lhs, const double &rhs, const xyz_knowledge_msgs::ExprBase &op) {
@@ -116,14 +116,14 @@ namespace KCL_rosplan {
 		return 0;
 	}
 
-	/** 
+	/**
 	 * returns true iff a matches the knowledge in b.
 	 */
 	bool KnowledgeComparitor::containsKnowledge(const xyz_knowledge_msgs::KnowledgeItem &a, const xyz_knowledge_msgs::KnowledgeItem &b) {
 
 		int matches = 0;
 		if(a.knowledge_type != b.knowledge_type) return false;
-		
+
 		switch(a.knowledge_type) {
 
 		case xyz_knowledge_msgs::KnowledgeItem::INSTANCE:
@@ -131,7 +131,7 @@ namespace KCL_rosplan {
 				// check instance knowledge
 				if(0!=a.instance_type.compare(b.instance_type)) return false;
 				if(a.instance_name!="" && !boost::iequals(a.instance_name, b.instance_name)) return false;
-				return true;		
+				return true;
 			}
 			break;
 

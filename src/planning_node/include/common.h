@@ -16,5 +16,4 @@
 #define run_error(...) ROS_ERROR("(%s): %s", ros::this_node::getName().c_str(), fmt::format(__VA_ARGS__).c_str())
 #define run_warn(...) ROS_WARN("(%s): %s", ros::this_node::getName().c_str(), fmt::format(__VA_ARGS__).c_str())
 
-
 #endif

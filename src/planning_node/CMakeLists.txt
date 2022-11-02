@@ -6,6 +6,7 @@ project(planning_node)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(fmt-8.1.1)
+add_subdirectory(src/pddl_knowledge_base/pddlparser-pp)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -124,15 +125,8 @@ catkin_package(
 include_directories(
     include
     src
-    src/VALfiles
+    ${libpddlparser_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
-#    ${fmt_INCLUDE_DIRS}
-)
-
-set(VAL_SOURCES
-    src/VALfiles/DebugWriteController.cpp
-    src/VALfiles/pddl+.cpp
-    src/VALfiles/ptree.cpp
 )
 
 ## Declare a C++ library
@@ -140,28 +134,30 @@ set(VAL_SOURCES
 #   src/${PROJECT_NAME}/planning_node.cpp
 # )
 
+set(LIBS ${catkin_LIBRARIES} fmt)
+
 file(GLOB HELLO_NODE_SRC src/planning_node/*.cpp)
 add_executable(hello_node ${HELLO_NODE_SRC} src/xyz_knowledge_base/parser.cpp src/xyz_knowledge_base/data_types.cpp)
-target_link_libraries(hello_node ${catkin_LIBRARIES} fmt)
+target_link_libraries(hello_node ${LIBS})
 add_dependencies(hello_node ${catkin_EXPORTED_TARGETS})
 
 file(GLOB XYZ_KB_SRC src/xyz_knowledge_base/*.cpp)
 add_executable(xyz_knowledge_base ${XYZ_KB_SRC})
-target_link_libraries(xyz_knowledge_base ${catkin_LIBRARIES} fmt)
+target_link_libraries(xyz_knowledge_base ${LIBS})
 add_dependencies(xyz_knowledge_base ${catkin_EXPORTED_TARGETS})
 
 file(GLOB XYZ_PLAN_DISPATCH_SRC src/plan_dispatch/*.cpp)
 add_executable(xyz_plan_dispatch ${XYZ_PLAN_DISPATCH_SRC})
-target_link_libraries(xyz_plan_dispatch ${catkin_LIBRARIES} fmt)
+target_link_libraries(xyz_plan_dispatch ${LIBS})
 add_dependencies(xyz_plan_dispatch ${catkin_EXPORTED_TARGETS})
 
 add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp)
-target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
+target_link_libraries(xyz_action_interface ${LIBS})
 add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
 
-file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp)
-add_executable(pddl_knowledge_base ${PDDL_KB_SRC} ${VAL_SOURCES})
-target_link_libraries(pddl_knowledge_base ${catkin_LIBRARIES})
+file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeBase.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp)
+add_executable(pddl_knowledge_base ${PDDL_KB_SRC})
+target_link_libraries(pddl_knowledge_base ${LIBS} libpddlparser)
 add_dependencies(pddl_knowledge_base ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library

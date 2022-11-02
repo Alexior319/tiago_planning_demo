@@ -1,0 +1,3 @@
+[submodule "src/planning_node/src/pddl_knowledge_base/pddlparser-pp"]
+	path = src/planning_node/src/pddl_knowledge_base/pddlparser-pp
+	url = git@gitee.com:yuanzhouxue/pddlparser-pp.git

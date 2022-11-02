@@ -249,6 +249,7 @@ namespace KCL_rosplan {
         model_functions.clear();
         model_goals.clear();
         model_metric = empty;
+        return false;
     }
 
 /**

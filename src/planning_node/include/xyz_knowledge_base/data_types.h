@@ -98,7 +98,7 @@ namespace planning_node {
         bool neg = false; // 是否为负文字
         MetaPredicatePtr meta; // 元谓词（里面包括谓词名称和参数类型）
         vector<int> pos; // 这个谓词中各个参数对应的位置
-        PredicateIdx(bool neg, const MetaPredicatePtr& meta) : neg(neg), meta(meta) {}
+        PredicateIdx(bool neg, MetaPredicatePtr meta) : neg(neg), meta(std::move(meta)) {}
     };
 
 
@@ -176,8 +176,8 @@ namespace planning_node {
 
         State() = default;
 
-        State(const StatePtr& parent, const ActionPtr& action) : state(parent->state), parentState(parent),
-                                                                 appliedAction(action) {}
+        State(const StatePtr& parent, ActionPtr action) : state(parent->state), parentState(parent),
+                                                                 appliedAction(std::move(action)) {}
 
         // s |= s'
         bool contains(const State& s) const noexcept;

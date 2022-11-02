@@ -7,13 +7,9 @@
 
 #include <ros/ros.h>
 
-#include "KB.h"
-#include "xyz_knowledge_base/KnowledgeComparitor.h"
-#include "PDDLDomainParser.h"
-#include "PDDLProblemParser.h"
-#include "VALVisitorOperator.h"
-#include "VALVisitorPredicate.h"
-#include "VALVisitorProblem.h"
+#include "PDDLParser.h"
+
+#include "xyz_knowledge_base/KnowledgeBase.h"
 
 #include "xyz_knowledge_msgs/KnowledgeUpdateService.h"
 #include "xyz_knowledge_msgs/KnowledgeUpdateServiceArray.h"
@@ -30,14 +26,23 @@
 #include "xyz_knowledge_msgs/GetMetricService.h"
 #include "xyz_knowledge_msgs/KnowledgeItem.h"
 
+#include "common.h"
+#include "xyz_knowledge_base/data_types.h"
+
 namespace planning_node {
     class PDDLKnowledgeBase : public KCL_rosplan::KnowledgeBase {
     private:
-        /* parsing domain using VAL */
-        PDDLDomainParser domain_parser;
+        PDDLParser parser;
 
-        /* initial state from problem file using VAL */
-        PDDLProblemParser problem_parser;
+        planning_node::StatePtr current_state, initial_state, goal_state;
+
+        unordered_map<Type, unordered_set<string>> allObjects;
+        unordered_map<string, Type> objTypes;
+        vector<string> types;
+        vector<shared_ptr<Action>> allPossibleActions;
+        unordered_map<string, shared_ptr<MetaAction>> metaActions;       // actionName -> ptrMetaAction
+        unordered_map<string, shared_ptr<MetaPredicate>> metaPredicates; // predName -> ptrMetaPredicate;
+
     public:
         explicit PDDLKnowledgeBase(ros::NodeHandle& n) : KnowledgeBase(n) {};
 
@@ -74,6 +79,67 @@ namespace planning_node {
                                  xyz_knowledge_msgs::GetDomainPredicateDetailsService::Response& res) override;
     };
 }
+
+namespace fmt {
+    template<>
+    struct formatter<Predicate> {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+            return ctx.begin();
+        }
+
+        template<class FormatContext>
+        auto format(const Predicate& predicate, FormatContext& ctx)
+        -> decltype(ctx.out()) {
+            std::stringstream ss;
+            ss << predicate;
+            return format_to(ctx.out(), "{}", ss.str());
+        }
+    };
+
+    template<>
+    struct formatter<Predicate*> {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+            return ctx.begin();
+        }
+
+        template<class FormatContext>
+        auto format(const Predicate* predicate, FormatContext& ctx)
+        -> decltype(ctx.out()) {
+            std::stringstream ss;
+            ss << *predicate;
+            return format_to(ctx.out(), "{}", ss.str());
+        }
+    };
+
+    template<>
+    struct formatter<Action> {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+            return ctx.begin();
+        }
+
+        template<class FormatContext>
+        auto format(const Action& action, FormatContext& ctx)
+        -> decltype(ctx.out()) {
+            std::stringstream ss;
+            ss << action;
+            return format_to(ctx.out(), "{}", ss.str());
+        }
+    };
+
+    template<>
+    struct formatter<LiteralState> {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+            return ctx.begin();
+        }
+
+        template<class FormatContext>
+        auto format(const LiteralState& state, FormatContext& ctx)
+        -> decltype(ctx.out()) {
+            return format_to(ctx.out(), "{}", to_string(state));
+        }
+    };
+} // namespace fmt
+
 
 
 #endif //ROS_PROJECT_PDDLKNOWLEDGEBASE_H
