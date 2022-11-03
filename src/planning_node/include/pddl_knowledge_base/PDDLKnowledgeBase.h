@@ -33,8 +33,10 @@ namespace planning_node {
     class PDDLKnowledgeBase : public KCL_rosplan::KnowledgeBase {
     private:
         PDDLParser parser;
+        void generatePossibleActions() noexcept;
 
-        planning_node::StatePtr current_state, initial_state, goal_state;
+    public:
+        planning_node::StatePtr current_state, goal_state;
 
         unordered_map<Type, unordered_set<string>> allObjects;
         unordered_map<string, Type> objTypes;
@@ -43,10 +45,9 @@ namespace planning_node {
         unordered_map<string, shared_ptr<MetaAction>> metaActions;       // actionName -> ptrMetaAction
         unordered_map<string, shared_ptr<MetaPredicate>> metaPredicates; // predName -> ptrMetaPredicate;
 
-    public:
         explicit PDDLKnowledgeBase(ros::NodeHandle& n) : KnowledgeBase(n) {};
 
-        ~PDDLKnowledgeBase() = default;
+        ~PDDLKnowledgeBase() override = default;
 
         /* parse domain and probelm files */
         void parseDomain(const std::string& domain_file_path, const std::string& problem_file_path) override;
@@ -55,6 +56,8 @@ namespace planning_node {
         void addInitialState() override;
 
         void addConstants() override;
+        bool getGoals(xyz_knowledge_msgs::GetAttributeService::Request &req, xyz_knowledge_msgs::GetAttributeService::Response &res) override;
+        bool getCurrent(xyz_knowledge_msgs::GetAttributeService::Request &req, xyz_knowledge_msgs::GetAttributeService::Response &res);
 
         /* service methods for fetching the domain details */
         bool getDomainName(xyz_knowledge_msgs::GetDomainNameService::Request& req,
@@ -77,6 +80,8 @@ namespace planning_node {
 
         bool getPredicateDetails(xyz_knowledge_msgs::GetDomainPredicateDetailsService::Request& req,
                                  xyz_knowledge_msgs::GetDomainPredicateDetailsService::Response& res) override;
+
+        const vector<xyz_knowledge_msgs::KnowledgeItem>& getState() const;
     };
 }
 

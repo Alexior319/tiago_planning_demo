@@ -28,7 +28,7 @@ class XYZKnowledgeBase : public KnowledgeBase {
     unordered_map<Type, unordered_set<string>> allObjects;
     unordered_map<string, Type> objTypes;
     vector<string> types;
-    vector<shared_ptr<Action>> allPossibleActions;
+    vector<shared_ptr<planning_node::Action>> allPossibleActions;
     unordered_map<string, shared_ptr<MetaAction>> metaActions;       // actionName -> ptrMetaAction
     unordered_map<string, shared_ptr<MetaPredicate>> metaPredicates; // predName -> ptrMetaPredicate;
 

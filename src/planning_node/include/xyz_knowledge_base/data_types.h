@@ -104,7 +104,8 @@ namespace planning_node {
 
     struct PredicateHasher {
         size_t operator()(const Predicate& p) const noexcept {
-            return std::hash<string>{}(p.data());
+            auto res = std::hash<string>{}(p.data());
+            return res;
         }
     };
 
@@ -204,6 +205,10 @@ namespace planning_node {
 
         void remove(const Predicate& p) noexcept {
             if (state.count(p)) state.erase(p);
+        }
+
+        void clear() noexcept {
+            state.clear();
         }
 
         StatePtr apply(const ActionPtr& action) noexcept;

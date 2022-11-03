@@ -1,6 +1,31 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(planning_node)
 
+function(add_ros_node node_name srcs_libs)
+    list(LENGTH ARGV argv_len)
+    set(sources)
+    set(libraries ${catkin_LIBRARIES})
+    set(i 1)
+    while(i LESS ${argv_len})
+        list(GET ARGV ${i} argv_value)
+        if (${argv_value} MATCHES "(.cpp|.cc)$")
+            list(APPEND sources ${argv_value})
+        else()
+            list(APPEND libraries ${argv_value})
+        endif()
+        math(EXPR i "${i} + 1")
+    endwhile()
+    add_executable(${node_name} ${sources})
+    target_link_libraries(${node_name} ${libraries})
+    add_dependencies(${node_name}
+            ${catkin_EXPORTED_TARGETS}
+#            ${PROJECT_NAME}_EXPORTED_TARGETS
+#            ${PROJECT_NAME}_generate_messages_cpp
+#            ${PROJECT_NAME}_generate_messages_cpp
+            )
+endfunction()
+
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 set(CMAKE_CXX_STANDARD 17)
@@ -55,8 +80,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   Message1.msg
-#   Message2.msg
+#   test.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -129,36 +153,31 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/planning_node.cpp
-# )
-
-set(LIBS ${catkin_LIBRARIES} fmt)
-
 file(GLOB HELLO_NODE_SRC src/planning_node/*.cpp)
-add_executable(hello_node ${HELLO_NODE_SRC} src/xyz_knowledge_base/parser.cpp src/xyz_knowledge_base/data_types.cpp)
-target_link_libraries(hello_node ${LIBS})
-add_dependencies(hello_node ${catkin_EXPORTED_TARGETS})
+add_ros_node(hello_node
+        ${HELLO_NODE_SRC}
+        src/xyz_knowledge_base/parser.cpp
+        src/xyz_knowledge_base/data_types.cpp
+        fmt
+        )
 
 file(GLOB XYZ_KB_SRC src/xyz_knowledge_base/*.cpp)
-add_executable(xyz_knowledge_base ${XYZ_KB_SRC})
-target_link_libraries(xyz_knowledge_base ${LIBS})
-add_dependencies(xyz_knowledge_base ${catkin_EXPORTED_TARGETS})
+add_ros_node(xyz_knowledge_base
+        ${XYZ_KB_SRC}
+        fmt
+        )
 
-file(GLOB XYZ_PLAN_DISPATCH_SRC src/plan_dispatch/*.cpp)
-add_executable(xyz_plan_dispatch ${XYZ_PLAN_DISPATCH_SRC})
-target_link_libraries(xyz_plan_dispatch ${LIBS})
-add_dependencies(xyz_plan_dispatch ${catkin_EXPORTED_TARGETS})
+add_ros_node(xyz_plan_dispatch
+        src/plan_dispatch/XYZPlanDIspatch.cpp
+        fmt
+        )
 
 add_library(xyz_action_interface src/xyz_action_interface/XYZActionInterface.cpp)
-target_link_libraries(xyz_action_interface ${LIBS})
+target_link_libraries(xyz_action_interface ${catkin_LIBRARIES} fmt)
 add_dependencies(xyz_action_interface ${catkin_EXPORTED_TARGETS})
 
-file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeBase.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp)
-add_executable(pddl_knowledge_base ${PDDL_KB_SRC})
-target_link_libraries(pddl_knowledge_base ${LIBS} libpddlparser)
-add_dependencies(pddl_knowledge_base ${catkin_EXPORTED_TARGETS})
+file(GLOB PDDL_KB_SRC src/pddl_knowledge_base/*.cpp src/xyz_knowledge_base/KnowledgeBase.cpp src/xyz_knowledge_base/KnowledgeComparitor.cpp src/xyz_knowledge_base/data_types.cpp src/pddl_knowledge_base/pddl_planner.cpp)
+add_ros_node(pddl_knowledge_base ${PDDL_KB_SRC} fmt libpddlparser)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -189,11 +208,11 @@ add_dependencies(pddl_knowledge_base ${catkin_EXPORTED_TARGETS})
 ## Install ##
 #############
 
-install(TARGETS xyz_action_interface fmt EXPORT fmt
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+#install(TARGETS xyz_action_interface fmt EXPORT fmt
+#    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html

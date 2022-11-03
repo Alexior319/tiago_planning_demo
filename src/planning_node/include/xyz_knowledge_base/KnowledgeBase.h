@@ -100,8 +100,8 @@ class KnowledgeBase {
     double _kb_rate;
 
   public:
-    KnowledgeBase(ros::NodeHandle &n);
-    ~KnowledgeBase() = default;
+    explicit KnowledgeBase(ros::NodeHandle &n);
+    virtual ~KnowledgeBase() = default;
 
     bool use_unknowns;
 
