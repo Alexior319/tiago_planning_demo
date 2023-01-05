@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="domain_path" default="$(find planning_node)/src/pddl_knowledge_base/pddlparser-pp/data/gripper-typed-comment.pddl" />
+    <arg name="problem_path" default="$(find planning_node)/src/pddl_knowledge_base/pddlparser-pp/data/gripper-4.pddl" />
+    <arg name="planner_topic" default="/planner_output" />
+    <arg name="kb_rate" default="100" />
+
+    <!-- rosplan knowledge base -->
+    <node name="pddl_knowledge_base" pkg="planning_node" type="pddl_knowledge_base" respawn="false" output="screen">
+        <param name="domain_path" value="$(arg domain_path)" />
+        <param name="problem_path" value="$(arg problem_path)" />
+        <param name="planner_topic" value="$(arg planner_topic)" />
+        <param name="kb_rate" value="$(arg kb_rate)" />
+    </node>
+
+</launch>

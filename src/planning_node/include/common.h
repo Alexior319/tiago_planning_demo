@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include "ros/ros.h"
 
 #define debug_info(...) ROS_INFO("%s", fmt::format(__VA_ARGS__).c_str())
 #define debug_error(...) ROS_ERROR("%s", fmt::format(__VA_ARGS__).c_str())

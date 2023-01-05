@@ -2,6 +2,7 @@
 // Created by xyz on 22-5-11.
 //
 #include "xyz_knowledge_base/data_types.h"
+#include "common.h"
 
 namespace planning_node {
     const string& MetaPredicate::data() noexcept {
@@ -124,13 +125,27 @@ namespace planning_node {
     }
 
     bool State::canApply(const ActionPtr& action) const noexcept {
-        bool conditionSatisfied = all_of(action->conditions.begin(), action->conditions.end(), [this](const auto& p) {
-            return this->contains(p);
-        });
-        bool conditionsShouldNotSeenSatisfied = all_of(action->conditionsShouldNotSeen.begin(), action->conditionsShouldNotSeen.end(), [this](const auto& p) {
-            return !this->contains(p);
-        });
-        return conditionSatisfied && conditionsShouldNotSeenSatisfied;
+        // run_info("Action {}", action);
+        // run_info("Action pre: {}", this->state);
+        // run_info("Action cond: {}", action->conditions);
+        // run_info("Action cond not: {}", action->conditionsShouldNotSeen);
+        // run_info("State: {}", state);
+        for (const auto& c : action->conditions) {
+            if (!this->contains(c)) return false;
+        }
+        for (const auto& c : action->conditionsShouldNotSeen) {
+            if (this->contains(c) || this->contains(-c)) {
+                return false;
+            }
+        }
+        return true;
+        // bool conditionSatisfied = all_of(action->conditions.begin(), action->conditions.end(), [this](const auto& p) {
+        //     return this->contains(p);
+        // });
+        // bool conditionsShouldNotSeenSatisfied = all_of(action->conditionsShouldNotSeen.begin(), action->conditionsShouldNotSeen.end(), [this](const auto& p) {
+        //     return !this->contains(p) && !this->contains(-p);
+        // });
+        // return conditionSatisfied && conditionsShouldNotSeenSatisfied;
     }
 
     bool State::contains(const State& s) const noexcept {

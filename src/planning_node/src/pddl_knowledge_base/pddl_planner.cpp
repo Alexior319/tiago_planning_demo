@@ -52,9 +52,9 @@ namespace planning_node {
                         ++nodesNum;
                         if (visited(bfsSeen, newState)) continue;
 
-                        run_info("From state: {}", node);
-                        run_info("Apply action: {}", a);
-                        run_info("To state: {}", newState);
+                        // run_info("From state: {}", node);
+                        // run_info("Apply action: {}", a);
+                        // run_info("To state: {}", newState);
 
                         q.emplace(newState);
                         bfsSeen.emplace(newState);

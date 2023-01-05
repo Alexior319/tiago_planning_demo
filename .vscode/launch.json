@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "ROS: Launch",
+            "type": "ros",
+            "request": "launch",
+            "target": "/home/xyz/workspace/tiago_planning_demo/src/planning_node/launch/pddl_knowledge_base.launch",
+            "preLaunchTask": "catkin: build"
+        },
+        {
             "name": "hello_node",
             "type": "cppdbg",
             "request": "launch",
