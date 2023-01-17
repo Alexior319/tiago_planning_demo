@@ -29,6 +29,7 @@ add_service_files(
   FILES
   GetPlanningParams.srv
   DispatchService.srv
+  OnlineDispatchService.srv
 )
 
 add_action_files(

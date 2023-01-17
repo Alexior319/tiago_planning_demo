@@ -19,9 +19,9 @@
         <arg name="plan_topic" value="$(arg plan_topic)" />
     </include>
 
-    <rosparam file="$(find tiago_serving_demo)/config/waypoints.yaml" command="load" />
+    <rosparam file="$(find tiago_demo_planning)/config/waypoints.yaml" command="load" />
 
-    <node name="action_goto_waypoint" type="action_goto_waypoint" pkg="tiago_serving_demo" output="screen">
+    <node name="action_goto_waypoint" type="action_goto_waypoint" pkg="tiago_demo_planning" output="screen">
         <param name="knowledge_base" value="xyz_knowledge_base" />
         <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
         <param name="wp_namespace" value="/nav_wps" />
@@ -30,7 +30,7 @@
         <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
     </node>
 
-    <node name="action_watch_table" type="action_watch_table" pkg="tiago_serving_demo" output="screen">
+    <node name="action_watch_table" type="action_watch_table" pkg="tiago_demo_planning" output="screen">
         <param name="knowledge_base" value="xyz_knowledge_base" />
         <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
         <param name="action_name" value="watch_table" />
@@ -38,7 +38,7 @@
         <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
     </node>
 
-    <node name="action_pick" type="action_dummy" pkg="tiago_serving_demo" output="screen">
+    <node name="action_pick" type="action_dummy" pkg="tiago_demo_planning" output="screen">
         <param name="knowledge_base" value="xyz_knowledge_base" />
         <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
         <param name="action_name" value="pick" />
@@ -46,7 +46,7 @@
         <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
     </node>
 
-    <node name="action_place" type="action_dummy" pkg="tiago_serving_demo" output="screen">
+    <node name="action_place" type="action_dummy" pkg="tiago_demo_planning" output="screen">
         <param name="knowledge_base" value="xyz_knowledge_base" />
         <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
         <param name="action_name" value="place" />

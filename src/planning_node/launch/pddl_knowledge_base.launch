@@ -6,7 +6,7 @@
     <arg name="kb_rate" default="100" />
 
     <!-- rosplan knowledge base -->
-    <node name="pddl_knowledge_base" pkg="planning_node" type="pddl_knowledge_base" respawn="false" output="screen">
+    <node name="xyz_knowledge_base" pkg="planning_node" type="pddl_knowledge_base" respawn="false" output="screen">
         <param name="domain_path" value="$(arg domain_path)" />
         <param name="problem_path" value="$(arg problem_path)" />
         <param name="planner_topic" value="$(arg planner_topic)" />

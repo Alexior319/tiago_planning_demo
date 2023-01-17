@@ -53,7 +53,7 @@
         "/home/xyz/depend_ws/src/tiago/ros_controllers/temperature_sensor_controller/include/**",
         "/home/xyz/depend_ws/src/tiago/tf_lookup/include/**",
         "/home/xyz/depend_ws/src/tiago/tiago_tutorials/tiago_pcl_tutorial/include/**",
-        "/home/xyz/workspace/tiago_planning_demo/src/tiago_serving_demo/include/**",
+        "/home/xyz/workspace/tiago_planning_demo/src/tiago_demo_planning/include/**",
         "/home/xyz/depend_ws/src/tiago/ros_control/transmission_interface/include/**",
         "/home/xyz/depend_ws/src/tiago/ros_controllers/velocity_controllers/include/**",
         "/usr/include/**"

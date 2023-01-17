@@ -14,6 +14,7 @@
 
 
 #include <xyz_dispatch_msgs/CompletePlan.h>
+#include <xyz_dispatch_msgs/OnlineDispatchService.h>
 
 #include <xyz_knowledge_base/data_types.h>
 #include <xyz_knowledge_base/parser.h>
@@ -34,6 +35,8 @@ namespace planning_node {
 
         bool runPlanningServerDefault(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
+        bool onlinePlanningServer(xyz_dispatch_msgs::OnlineDispatchService::Request& req, xyz_dispatch_msgs::OnlineDispatchService::Response& res);
+
     private:
         // const parser& _parser;
         const unique_ptr<PDDLKnowledgeBase>& kb_ptr;
@@ -43,6 +46,10 @@ namespace planning_node {
 
         ros::Publisher plan_publisher;
         ros::ServiceServer planning_server;
+        ros::ServiceServer online_server;
+        std::vector<xyz_dispatch_msgs::ActionDispatch> got_plan;
+        int action_idx = 0;
+        unordered_set<std::string> sensing_actions;
 
         int plan_id = 0;
 

@@ -3,12 +3,14 @@
     <arg name="plan_topic" default="/xyz_knowledge_base/planner_output" />
     <arg name="action_dispatch_topic" default="action_dispatch" />
     <arg name="action_feedback_topic" default="action_feedback" />
+    <arg name="online_service" default="/xyz_knowledge_base/online_service" />
 
     <!-- rosplan knowledge base -->
     <node name="xyz_plan_dispatch" pkg="planning_node" type="xyz_plan_dispatch" respawn="false" output="screen">
         <param name="plan_topic" value="$(arg plan_topic)" />
         <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />
         <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
+        <param name="online_service" value="$(arg online_service)" />
     </node>
 
 </launch>

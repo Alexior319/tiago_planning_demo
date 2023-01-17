@@ -1,0 +1,10 @@
+nav_wps:
+    # waypoints reference frame
+    waypoint_frameid: map
+
+    table1: [6.26, 1.16, 0.0]
+    table2: [6.26, 5.9, 0.0]
+    table3: [0.13, 5.6, 3.14]
+    table4: [-5.7, -0.2, 3.14]
+    table5: [-2.5, 5.35, 0.0]
+    table: [0, 0, 1.57]

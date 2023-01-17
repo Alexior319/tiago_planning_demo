@@ -13,6 +13,7 @@ namespace planning_node {
         plan_publisher = _nh.advertise<xyz_dispatch_msgs::CompletePlan>(plannerTopic, 1, true);
         planning_server = _nh.advertiseService("planning_server", &planning_node::pddl_planner::runPlanningServerDefault,
                                                this);
+        online_server = _nh.advertiseService("online_planning", &planning_node::pddl_planner::onlinePlanningServer, this);
 
         ros_info("(XYZPlanner): Ready to receive.");
     }
@@ -60,6 +61,11 @@ namespace planning_node {
                         bfsSeen.emplace(newState);
                     }
                 }
+            }
+        }
+        for (const auto& a : plan) {
+            if (!a->conditionsShouldNotSeen.empty()) {
+                sensing_actions.emplace(a->meta->name);
             }
         }
 //        run_info("Expanded nodes: {}", nodesNum);
@@ -181,28 +187,76 @@ namespace planning_node {
             return true;
         }
 
-        auto got_plan = planning(state, kb_ptr->goal_state);
-        run_info("Got plan: {}", got_plan);
+        auto planned_actions = planning(state, kb_ptr->goal_state);
+        run_info("Got plan: {}", planned_actions);
 
-        for (int action_id = 0; action_id < got_plan.size(); ++action_id) {
+        for (int action_id = 0; action_id < planned_actions.size(); ++action_id) {
             xyz_dispatch_msgs::ActionDispatch a;
-            a.name = got_plan[action_id]->meta->name;
+            a.name = planned_actions[action_id]->meta->name;
             a.action_id = action_id;
             a.plan_id = plan_id;
             a.dispatch_time = 0.0f;
             a.duration = 0.0f;
-            for (int i = 0; i < got_plan[action_id]->paras.size(); ++i) {
+            for (int i = 0; i < planned_actions[action_id]->paras.size(); ++i) {
                 diagnostic_msgs::KeyValue kv;
-                kv.key = got_plan[action_id]->meta->names[i];
-                kv.value = got_plan[action_id]->paras[i];
+                kv.key = planned_actions[action_id]->meta->names[i];
+                kv.value = planned_actions[action_id]->paras[i];
                 a.parameters.emplace_back(kv);
             }
             plan.plan.emplace_back(a);
         }
         plan_publisher.publish(plan);
         ++plan_id;
-        if (got_plan.empty()) {
+        if (planned_actions.empty()) {
             ros_error("Problem unsolvable.");
+        }
+        return true;
+    }
+
+    bool pddl_planner::onlinePlanningServer(xyz_dispatch_msgs::OnlineDispatchService::Request &req,
+                                            xyz_dispatch_msgs::OnlineDispatchService::Response &res) {
+        if (action_idx >= got_plan.size() || (action_idx > 0 && sensing_actions.count(got_plan[action_idx-1].name))) {
+            // re-plan
+            got_plan.clear();
+            action_idx = 0;
+
+            auto state = make_shared<State>();
+            for (const auto& fact : kb_ptr->getState()) {
+                Predicate p;
+                p.meta = kb_ptr->metaPredicates[fact.attribute_name];
+                p.neg = fact.is_negative;
+                for (const auto & [k, v] : fact.values) {
+                    p.parameters.push_back(v);
+                }
+                state->add(p);
+            }
+            if (state->contains(kb_ptr->goal_state)) {
+                run_info("No need to plan.");
+            }
+
+            auto plan = planning(state, kb_ptr->goal_state);
+            run_info("Got plan: {}", plan);
+
+            for (int action_id = 0; action_id < plan.size(); ++action_id) {
+                xyz_dispatch_msgs::ActionDispatch a;
+                a.name = plan[action_id]->meta->name;
+                a.action_id = plan_id * 1000 + action_id;
+                a.plan_id = plan_id;
+                a.dispatch_time = 0.0f;
+                a.duration = 0.0f;
+                for (int i = 0; i < plan[action_id]->paras.size(); ++i) {
+                    diagnostic_msgs::KeyValue kv;
+                    kv.key = plan[action_id]->meta->names[i];
+                    kv.value = plan[action_id]->paras[i];
+                    a.parameters.emplace_back(kv);
+                }
+                got_plan.emplace_back(a);
+            }
+        }
+        if (got_plan.empty()) {
+            res.action.action_id = -1;
+        } else {
+            res.action = got_plan[action_idx++];
         }
         return true;
     }

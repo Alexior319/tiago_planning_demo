@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(tiago_serving_demo)
+project(tiago_demo_planning)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
@@ -111,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
         INCLUDE_DIRS include
-        #  LIBRARIES tiago_serving_demo
+        #  LIBRARIES tiago_demo_planning
         CATKIN_DEPENDS roscpp geometry_msgs
         #   DEPENDS roscpp std_msgs
 )
@@ -129,7 +129,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/tiago_serving_demo.cpp
+#   src/${PROJECT_NAME}/tiago_demo_planning.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -216,7 +216,7 @@ target_link_libraries(action_dummy ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tiago_serving_demo.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_tiago_demo_planning.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -16,11 +16,15 @@ namespace planning_node {
 
         dispatch_server = _nh.advertiseService("dispatch_plan", &planning_node::XYZPlanDispatch::dispatchPlanService,
                                                this);
+        online_dispatch_server = _nh.advertiseService("online_dispatch", &planning_node::XYZPlanDispatch::onlineDispatchPlanService, this);
         pause_dispatch_server = _nh.advertiseService("pause_dispatch", &planning_node::XYZPlanDispatch::pauseDispatchService, this);
         recover_dispatch_server = _nh.advertiseService("continue_dispatch", &planning_node::XYZPlanDispatch::recoverDispatchService, this);
         feedback_subscriber = _nh.subscribe(action_feedback_topic, 1000,
                                             &planning_node::XYZPlanDispatch::feedbackCallback, this);
 
+        std::string onlineService = "online_service";
+        _nh.getParam("online_service", onlineService);
+        online_planning_client = _nh.serviceClient<xyz_dispatch_msgs::OnlineDispatchService>(onlineService);
         std::string plan_topic;
         _nh.param("plan_topic", plan_topic, std::string("complete_plan"));
         plan_subscriber = _nh.subscribe(plan_topic, 100, &planning_node::XYZPlanDispatch::planCallback, this);
@@ -142,6 +146,58 @@ namespace planning_node {
     bool XYZPlanDispatch::recoverDispatchService(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
         run_info("XYZPlanDispatch: Plan dispatch recovered.");
         dispatch_paused = false;
+        return true;
+    }
+
+    bool XYZPlanDispatch::onlineDispatchPlanService(xyz_dispatch_msgs::DispatchService::Request &req,
+                                                    xyz_dispatch_msgs::DispatchService::Response &res) {
+        xyz_dispatch_msgs::OnlineDispatchService srv;
+        ros::Rate loop_rate(10);
+        while (ros::ok()) {
+            if (!online_planning_client.call(srv)) {
+                ROS_ERROR("(%s): Error when calling online planning service", ros::this_node::getName().c_str());
+            }
+            auto action = srv.response.action;
+            if (action.action_id < 0) {
+                break;
+            }
+            // loop while dispatch is paused
+            while (ros::ok() && dispatch_paused) {
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+
+            std::string params = "(";
+            for (size_t i = 0; i < action.parameters.size(); ++i) {
+                if (i > 0) params += ", ";
+                params += action.parameters[i].value;
+            }
+            params += ")";
+            // dispatch action
+            run_info("KCL: ({}) Dispatching action [{}, {}{}]", ros::this_node::getName(), action.action_id,
+                     action.name,
+                     params);
+
+            dispatch_pub.publish(action);
+            // publish feedback (action dispatched)
+            xyz_dispatch_msgs::ActionFeedback fb;
+            fb.action_id = action.action_id;
+            fb.status = xyz_dispatch_msgs::ActionFeedback::ACTION_DISPATCHED_TO_GOAL_STATE;
+            feedback_pub.publish(fb);
+
+            // wait for action to complete
+            while (ros::ok() && !action_completed[current_action]) {
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+
+            if (dispatch_paused) {
+                action_completed.clear();
+                action_received.clear();
+                continue;
+            }
+            run_info("Action completed: {}", current_action);
+        }
         return true;
     }
 

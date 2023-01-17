@@ -7,4 +7,4 @@ add_subdirectory(src/ROSPlan/rosplan_dispatch_msgs)
 add_subdirectory(src/ROSPlan/rosplan_planning_msgs)
 
 add_subdirectory(src/planning_node)
-add_subdirectory(src/tiago_serving_demo)
+add_subdirectory(src/tiago_demo_planning)
