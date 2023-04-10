@@ -3,11 +3,12 @@
     (:objects
         table1 table2 table3 table4 table5 table - waypoint
         tiago - robot
-        glass - ball
+        glass another - ball
     )
     (:init
         (robot-at tiago table)
         (not (ball-at glass table))
+        (not (ball-at another table))
         (connected table table1)
         (connected table1 table2)
         (connected table2 table3)
@@ -22,6 +23,7 @@
     (:goal
         (and
             (ball-at glass table)
+            (ball-at another table)
         )
     )
 )

@@ -158,6 +158,7 @@ namespace planning_node {
                 ROS_ERROR("(%s): Error when calling online planning service", ros::this_node::getName().c_str());
             }
             auto action = srv.response.action;
+            current_action = action.action_id;
             if (action.action_id < 0) {
                 break;
             }
@@ -166,6 +167,8 @@ namespace planning_node {
                 ros::spinOnce();
                 loop_rate.sleep();
             }
+            ros_info("Got action: {}", srv.response.action.name);
+            ros_info("Start dispatching...");
 
             std::string params = "(";
             for (size_t i = 0; i < action.parameters.size(); ++i) {
@@ -198,6 +201,7 @@ namespace planning_node {
             }
             run_info("Action completed: {}", current_action);
         }
+        ROS_INFO("Dispatching complete.");
         return true;
     }
 

@@ -36,6 +36,8 @@ namespace planning_node {
         bool runPlanningServerDefault(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
         bool onlinePlanningServer(xyz_dispatch_msgs::OnlineDispatchService::Request& req, xyz_dispatch_msgs::OnlineDispatchService::Response& res);
+        int total_planning_time = 0;
+        ros::Publisher planning_time_pub;
 
     private:
         // const parser& _parser;
@@ -45,6 +47,7 @@ namespace planning_node {
 
 
         ros::Publisher plan_publisher;
+        ros::Publisher partial_plan_pub;
         ros::ServiceServer planning_server;
         ros::ServiceServer online_server;
         std::vector<xyz_dispatch_msgs::ActionDispatch> got_plan;

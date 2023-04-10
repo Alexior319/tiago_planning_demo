@@ -16,6 +16,8 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
+#include <mempool.h>
+
 namespace planning_node {
     using namespace std;
 
@@ -216,6 +218,8 @@ namespace planning_node {
         StatePtr applyRelevant(const ActionPtr& action) noexcept;
 
         string data() noexcept;
+        static void* operator new(size_t size);
+        static void operator delete(void* p, size_t size);
     };
 
 }

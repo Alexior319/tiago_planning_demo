@@ -3,7 +3,9 @@
 //
 
 #include <std_msgs/String.h>
+#include <std_msgs/Int32.h>
 #include "pddl_knowledge_base/pddl_planner.h"
+#include <chrono>
 
 namespace planning_node {
     pddl_planner::pddl_planner(ros::NodeHandle& nh, const unique_ptr<PDDLKnowledgeBase>& ptr) : kb_ptr(ptr), _nh(nh) {
@@ -11,16 +13,18 @@ namespace planning_node {
         _nh.getParam("planner_topic", plannerTopic);
 
         plan_publisher = _nh.advertise<xyz_dispatch_msgs::CompletePlan>(plannerTopic, 1, true);
+        partial_plan_pub = _nh.advertise<std_msgs::String>("partial_planner_output", 10, true);
         planning_server = _nh.advertiseService("planning_server", &planning_node::pddl_planner::runPlanningServerDefault,
                                                this);
         online_server = _nh.advertiseService("online_planning", &planning_node::pddl_planner::onlinePlanningServer, this);
-
+        planning_time_pub = _nh.advertise<std_msgs::Int32>("planning_time", 1, true);
         ros_info("(XYZPlanner): Ready to receive.");
     }
 
 
     vector<ActionPtr>
     pddl_planner::planning(const planning_node::StatePtr& initial, const planning_node::StatePtr& goal) {
+        auto begin = chrono::system_clock::now();
         queue<StatePtr> q;
         unordered_set<StatePtr> bfsSeen;
         q.push(initial);
@@ -69,6 +73,9 @@ namespace planning_node {
             }
         }
 //        run_info("Expanded nodes: {}", nodesNum);
+        ++plan_id;
+        auto end = chrono::system_clock::now();
+        total_planning_time += chrono::duration_cast<chrono::milliseconds>(end - begin).count();
         return plan;
     }
 
@@ -206,7 +213,7 @@ namespace planning_node {
             plan.plan.emplace_back(a);
         }
         plan_publisher.publish(plan);
-        ++plan_id;
+
         if (planned_actions.empty()) {
             ros_error("Problem unsolvable.");
         }
@@ -235,7 +242,7 @@ namespace planning_node {
             }
 
             auto plan = planning(state, kb_ptr->goal_state);
-            run_info("Got plan: {}", plan);
+            run_info("Got new plan: {}", plan);
 
             for (int action_id = 0; action_id < plan.size(); ++action_id) {
                 xyz_dispatch_msgs::ActionDispatch a;
@@ -255,8 +262,20 @@ namespace planning_node {
         }
         if (got_plan.empty()) {
             res.action.action_id = -1;
+            ros_info("Planning end.");
+            ros_info("Total planning time: {}", total_planning_time);
+            std_msgs::Int32 msg;
+            msg.data = total_planning_time;
+            planning_time_pub.publish(msg);
         } else {
             res.action = got_plan[action_idx++];
+            std_msgs::String action_msg;
+            action_msg.data += res.action.name;
+            for (const auto& p : res.action.parameters) {
+                action_msg.data += "_" + p.value;
+            }
+            partial_plan_pub.publish(action_msg);
+            ros_info("Returning next action: {}", action_msg.data);
         }
         return true;
     }

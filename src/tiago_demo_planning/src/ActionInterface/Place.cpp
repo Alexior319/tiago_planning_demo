@@ -26,9 +26,9 @@ namespace tiago_demo_planning {
         ros::ServiceClient setModelStateClient = nh_.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
         gazebo_msgs::SetModelState setMsg;
         setMsg.request.model_state.model_name = msg->parameters[1].value;
-        setMsg.request.model_state.pose = srvMsg.response.pose;
-        setMsg.request.model_state.pose.position.x -= 0.7;
-        setMsg.request.model_state.pose.position.z  = 1.0;
+        setMsg.request.model_state.pose.position.x = 0.0;
+        setMsg.request.model_state.pose.position.y = 1.0;
+        setMsg.request.model_state.pose.position.z = 1.0;
         setMsg.request.model_state.reference_frame = "map";
         setModelStateClient.call(setMsg);
         return true;

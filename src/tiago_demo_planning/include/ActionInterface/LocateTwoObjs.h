@@ -16,7 +16,7 @@
 
 
 namespace tiago_demo {
-    class WatchTableAction : public planning_node::XYZActionInterface {
+    class LocateTwoObjsAction : public planning_node::XYZActionInterface {
     private:
         // to clear costmaps if move base gets stuck
         ros::ServiceClient clear_costmaps_client_;
@@ -38,13 +38,15 @@ namespace tiago_demo {
         control_msgs::PointHeadActionGoal after_look_around_goal;
         tf::TransformListener listener;
         tf::StampedTransform transform;
-        ros::Subscriber aruco_sub;
+        ros::Subscriber aruco_sub, another_aruco_sub;
         void arucoCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+        void anotherArucoCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
         bool arucoDetected = false;
+        bool another_aruco_detected = false;
 
     public:
-        explicit WatchTableAction(ros::NodeHandle& nh);
+        explicit LocateTwoObjsAction(ros::NodeHandle& nh);
 
         bool concreteCallback(const xyz_dispatch_msgs::ActionDispatch::ConstPtr& msg) override;
 

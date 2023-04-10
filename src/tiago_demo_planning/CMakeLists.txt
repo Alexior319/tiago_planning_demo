@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
         tf2_ros
         geometry_msgs
         std_msgs
+        tf
         )
 
 ## System dependencies are found with CMake's conventions
@@ -150,6 +151,9 @@ target_link_libraries(action_place ${catkin_LIBRARIES})
 
 add_executable(action_watch_table src/ActionInterface/WatchTable.cpp)
 target_link_libraries(action_watch_table ${catkin_LIBRARIES})
+
+add_executable(action_locate_2objs src/ActionInterface/LocateTwoObjs.cpp)
+target_link_libraries(action_locate_2objs ${catkin_LIBRARIES})
 
 add_executable(action_dummy src/ActionInterface/Dummy.cpp)
 target_link_libraries(action_dummy ${catkin_LIBRARIES})

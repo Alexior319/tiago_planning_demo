@@ -62,41 +62,41 @@ namespace planning_node {
             xyz_knowledge_msgs::KnowledgeUpdateServiceArray updatePredSrv;
 
             if (isSensingAction()) {
-                for (size_t i = 0; i < op.at_end_add_effects.size(); ++i) {
-                    if (at_end_add_effects_results[i]) {
-                        xyz_knowledge_msgs::KnowledgeItem item;
-                        item.knowledge_type = xyz_knowledge_msgs::KnowledgeItem::FACT;
-                        item.attribute_name = op.at_end_add_effects[i].name;
-                        item.values.clear();
-                        diagnostic_msgs::KeyValue pair;
-                        for (size_t j = 0; j < op.at_end_add_effects[i].typed_parameters.size(); j++) {
-                            pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
-                            pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
-                            item.values.push_back(pair);
-                        }
-                        updatePredSrv.request.knowledge.push_back(item);
-                        updatePredSrv.request.update_type.push_back(
-                                xyz_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
-                    }
-                }
-                for (size_t i = 0; i < op.at_end_del_effects.size(); ++i) {
-                    if (at_end_del_effects_results[i]) {
-                        xyz_knowledge_msgs::KnowledgeItem item;
-                        item.knowledge_type = xyz_knowledge_msgs::KnowledgeItem::FACT;
-                        item.attribute_name = op.at_end_del_effects[i].name;
-                        item.is_negative = true;
-                        item.values.clear();
-                        diagnostic_msgs::KeyValue pair;
-                        for (size_t j = 0; j < op.at_end_del_effects[i].typed_parameters.size(); j++) {
-                            pair.key = predicates[op.at_end_del_effects[i].name].typed_parameters[j].key;
-                            pair.value = boundParameters[op.at_end_del_effects[i].typed_parameters[j].key];
-                            item.values.push_back(pair);
-                        }
-                        updatePredSrv.request.knowledge.push_back(item);
-                        updatePredSrv.request.update_type.push_back(
-                                xyz_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
-                    }
-                }
+//                for (size_t i = 0; i < op.at_end_add_effects.size(); ++i) {
+//                    if (at_end_add_effects_results[i]) {
+//                        xyz_knowledge_msgs::KnowledgeItem item;
+//                        item.knowledge_type = xyz_knowledge_msgs::KnowledgeItem::FACT;
+//                        item.attribute_name = op.at_end_add_effects[i].name;
+//                        item.values.clear();
+//                        diagnostic_msgs::KeyValue pair;
+//                        for (size_t j = 0; j < op.at_end_add_effects[i].typed_parameters.size(); j++) {
+//                            pair.key = predicates[op.at_end_add_effects[i].name].typed_parameters[j].key;
+//                            pair.value = boundParameters[op.at_end_add_effects[i].typed_parameters[j].key];
+//                            item.values.push_back(pair);
+//                        }
+//                        updatePredSrv.request.knowledge.push_back(item);
+//                        updatePredSrv.request.update_type.push_back(
+//                                xyz_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+//                    }
+//                }
+//                for (size_t i = 0; i < op.at_end_del_effects.size(); ++i) {
+//                    if (at_end_del_effects_results[i]) {
+//                        xyz_knowledge_msgs::KnowledgeItem item;
+//                        item.knowledge_type = xyz_knowledge_msgs::KnowledgeItem::FACT;
+//                        item.attribute_name = op.at_end_del_effects[i].name;
+//                        item.is_negative = true;
+//                        item.values.clear();
+//                        diagnostic_msgs::KeyValue pair;
+//                        for (size_t j = 0; j < op.at_end_del_effects[i].typed_parameters.size(); j++) {
+//                            pair.key = predicates[op.at_end_del_effects[i].name].typed_parameters[j].key;
+//                            pair.value = boundParameters[op.at_end_del_effects[i].typed_parameters[j].key];
+//                            item.values.push_back(pair);
+//                        }
+//                        updatePredSrv.request.knowledge.push_back(item);
+//                        updatePredSrv.request.update_type.push_back(
+//                                xyz_knowledge_msgs::KnowledgeUpdateService::Request::ADD_KNOWLEDGE);
+//                    }
+//                }
             } else {
                 // simple END del effects
                 for (auto& at_end_del_effect: op.at_end_del_effects) {
@@ -139,35 +139,35 @@ namespace planning_node {
 
             // publish feedback (achieved)
             fb.status = xyz_dispatch_msgs::ActionFeedback::ACTION_SUCCEEDED_TO_GOAL_STATE;
-            fb.pause_dispatch = isSensingAction();
+            fb.pause_dispatch = false;
             action_feedback_pub.publish(fb);
             ros::Duration(1.0).sleep();
 
-            if (isSensingAction()) {
-                ros::NodeHandle nh;
-                std::stringstream ss;
-                std_srvs::Empty emptySrv;
-
-//                // pause dispatch
-//                ss << pdn << "/pause_dispatch";
+//            if (isSensingAction()) {
+//                ros::NodeHandle nh;
+//                std::stringstream ss;
+//                std_srvs::Empty emptySrv;
+//
+////                // pause dispatch
+////                ss << pdn << "/pause_dispatch";
+////                ros::service::waitForService(ss.str(), ros::Duration(2));
+////                ros::ServiceClient srvClient1 = nh.serviceClient<std_srvs::Empty>(ss.str());
+////                srvClient1.call(emptySrv);
+//
+//                // planning
+//                ss.str("");
+//                ss << kb << "/planning_server";
 //                ros::service::waitForService(ss.str(), ros::Duration(2));
-//                ros::ServiceClient srvClient1 = nh.serviceClient<std_srvs::Empty>(ss.str());
-//                srvClient1.call(emptySrv);
-
-                // planning
-                ss.str("");
-                ss << kb << "/planning_server";
-                ros::service::waitForService(ss.str(), ros::Duration(2));
-                ros::ServiceClient srvClient2 = nh.serviceClient<std_srvs::Empty>(ss.str());
-                srvClient2.call(emptySrv);
-
-                // continue dispatch
-                ss.str("");
-                ss << pdn << "/continue_dispatch";
-                ros::service::waitForService(ss.str(), ros::Duration(2));
-                ros::ServiceClient srvClient3 = nh.serviceClient<std_srvs::Empty>(ss.str());
-                srvClient3.call(emptySrv);
-            }
+//                ros::ServiceClient srvClient2 = nh.serviceClient<std_srvs::Empty>(ss.str());
+//                srvClient2.call(emptySrv);
+//
+//                // continue dispatch
+//                ss.str("");
+//                ss << pdn << "/continue_dispatch";
+//                ros::service::waitForService(ss.str(), ros::Duration(2));
+//                ros::ServiceClient srvClient3 = nh.serviceClient<std_srvs::Empty>(ss.str());
+//                srvClient3.call(emptySrv);
+//            }
 
         } else {
 

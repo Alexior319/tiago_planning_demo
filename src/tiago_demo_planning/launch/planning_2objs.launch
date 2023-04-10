@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="domain_path" default="$(find tiago_demo_planning)/pddl/domain.pddl" />
-    <arg name="problem_path" default="$(find tiago_demo_planning)/pddl/problem.pddl" />
+    <arg name="domain_path" default="$(find tiago_demo_planning)/pddl/domain_2objs.pddl" />
+    <arg name="problem_path" default="$(find tiago_demo_planning)/pddl/problem_2objs.pddl" />
 
     <arg name="plan_topic" default="/xyz_knowledge_base/planner_output" />
     <arg name="online_service" default="/xyz_knowledge_base/online_planning" />
@@ -37,6 +37,14 @@
         <param name="knowledge_base" value="xyz_knowledge_base" />
         <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
         <param name="action_name" value="locate" />
+        <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />
+        <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
+    </node>
+
+    <node name="locate_two_objs" type="action_locate_2objs" pkg="tiago_demo_planning" output="screen">
+        <param name="knowledge_base" value="xyz_knowledge_base" />
+        <param name="plan_dispatch_node" value="xyz_plan_dispatch" />
+        <param name="action_name" value="locate_two_objs" />
         <param name="action_dispatch_topic" value="$(arg action_dispatch_topic)" />
         <param name="action_feedback_topic" value="$(arg action_feedback_topic)" />
     </node>
