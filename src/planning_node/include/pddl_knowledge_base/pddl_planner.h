@@ -17,7 +17,6 @@
 #include <xyz_dispatch_msgs/OnlineDispatchService.h>
 
 #include <xyz_knowledge_base/data_types.h>
-#include <xyz_knowledge_base/parser.h>
 #include "pddl_knowledge_base/PDDLKnowledgeBase.h"
 #include "common.h"
 

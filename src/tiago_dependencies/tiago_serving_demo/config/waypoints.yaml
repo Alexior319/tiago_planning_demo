@@ -1,0 +1,21 @@
+nav_wps:
+    # waypoints reference frame
+    waypoint_frameid: map
+
+    # waypoint 2D coordinates: x, y, theta
+#    wp0: [0, 0.4, -1.57]
+#    wp1: [3.7, -1.2, -1.57]
+#    wp2: [3.7, -2.0, -1.57]
+#    wp3: [1.7, -1.7, 1.57]
+    wp_orig: [0, 0, 0]
+    wp0: [0.66, -3.19, -1.57]
+    wp1: [5.91, -3.12, -1.57]
+    wp2: [0.9, 5.52, -3.14]
+    wp3: [6.0, 1.2, 0]
+
+    kitchen_table_1: [6.26, 0.96, 0.0]
+    kitchen_table_2: [6, 6, 0.0]
+    kitchen_table_0: [0.23, 5.6, 3.14]
+    kitchen_table: [-5.7, 0, 3.14]
+    kitchen_table_3: [-2.8, 5.3, 0.0]
+    initial: [0, 0, 1.57]

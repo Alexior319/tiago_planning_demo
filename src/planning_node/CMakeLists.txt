@@ -29,6 +29,7 @@ endfunction()
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE Release)
 
 add_subdirectory(fmt-8.1.1)
 add_subdirectory(src/pddl_knowledge_base/pddlparser-pp)
