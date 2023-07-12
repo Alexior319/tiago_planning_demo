@@ -17,7 +17,7 @@
             (robot-at ?v ?from)
         )
         :effect (and
-            (UNKNOWNt (robot-at ?v ?from))
+            (not (robot-at ?v ?from))
             (robot-at ?v ?to)
         )
     )
@@ -29,9 +29,9 @@
             (empty_hand ?v)
         )
         :effect (and
-            (UNKNOWNt (ball-at ?b ?wp))
+            (not (ball-at ?b ?wp))
             (in-hand ?b ?v)
-            (UNKNOWNt (empty_hand ?v))
+            (not (empty_hand ?v))
         )
     )
     (:action place
@@ -41,7 +41,7 @@
             (robot-at ?v ?wp)
         )
         :effect (and
-            (UNKNOWNt (in-hand ?b ?v))
+            (not (in-hand ?b ?v))
             (ball-at ?b ?wp)
             (empty_hand ?v)
         )

@@ -46,10 +46,10 @@
         :parameters (?v - robot ?b - ball ?wp - waypoint)
         :precondition (and 
             (robot-at ?v ?wp)
-            (no (ball-at ?b ?wp))
+            (UNKNOWN (ball-at ?b ?wp))
         )
         :effect (and
-            (K (ball-at ?b ?wp))
+            (KNOWN (ball-at ?b ?wp))
         ) 
     )
 )
