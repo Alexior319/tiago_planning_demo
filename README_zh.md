@@ -9,7 +9,7 @@
 - `tiago_dependencies`是tiago机器人的支持库，其中，`tiago_serving_demo/config`包含了world和map（场景1 tiago_5house_tables和场景2 tiago_5house_tables_2objs）
 
 ## 实验过程演示
-[演示视频](https://www.bilibili.com/video/BV1NZ421b7BQ)
+[演示视频](https://youtu.be/MLVHmmNfv30)
 
 ## 编译
 

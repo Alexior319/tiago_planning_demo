@@ -11,7 +11,7 @@ There are total 4 packages，including:
 - `tiago_dependencies` dependencies for tiago robot
 
 ## Experimental video
-[video](https://www.bilibili.com/video/BV1NZ421b7BQ)
+[video](https://youtu.be/MLVHmmNfv30)
 
 ## Compilation
 
